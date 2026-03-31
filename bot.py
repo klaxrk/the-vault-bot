@@ -53,7 +53,7 @@ if USE_PG:
     try:
         import psycopg2
         import psycopg2.extras
-import psycopg2.pool
+        import psycopg2.pool
         logger.info("\u2705 PostgreSQL mode \u2014 data persists across restarts!")
     except ImportError:
         logger.error("psycopg2 not installed! pip install psycopg2-binary")
