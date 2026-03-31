@@ -2,7 +2,7 @@
 """
 THE VAULT - Telegram Micro-Economy Bot
 Usage: python3 bot.py BOT_TOKEN ADMIN_USER_ID
-Dependencies: pip install python-telegram-bot==20.7 httpx
+Dependencies: pip install python-telegram-bot==20.7 httpx psycopg2-binary
 """
 import sys, os, sqlite3, json, logging, asyncio, hashlib, random, string, re
 from datetime import datetime, timedelta
@@ -32,16 +32,113 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
     handlers=[logging.FileHandler("data/bot.log"), logging.StreamHandler()])
 logger = logging.getLogger(__name__)
 
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
 DB_PATH = "data/vault.db"
+USE_PG = bool(DATABASE_URL)
+
+if USE_PG:
+    try:
+        import psycopg2
+        import psycopg2.extras
+        logger.info("\u2705 PostgreSQL mode \u2014 data persists across restarts!")
+    except ImportError:
+        logger.error("psycopg2 not installed! pip install psycopg2-binary")
+        USE_PG = False
+else:
+    logger.warning("\u26a0\ufe0f SQLite mode \u2014 data will be LOST on restart! Set DATABASE_URL for persistence.")
+
 # Global conversation states
 user_states = {}
 
+class PgCursor:
+    """Wraps psycopg2 cursor results to match sqlite3 interface"""
+    def __init__(self, cur):
+        self._cur = cur
+    def fetchone(self):
+        try:
+            r = self._cur.fetchone()
+        except psycopg2.ProgrammingError:
+            return None
+        return dict(r) if r else None
+    def fetchall(self):
+        try:
+            return [dict(r) for r in self._cur.fetchall()]
+        except psycopg2.ProgrammingError:
+            return []
+    @property
+    def lastrowid(self):
+        try:
+            self._cur.execute("SELECT lastval()")
+            return self._cur.fetchone()[0]
+        except:
+            return 0
+
+class PgConnection:
+    """Wraps psycopg2 connection to match sqlite3 interface"""
+    def __init__(self, conn):
+        self._conn = conn
+        self._conn.autocommit = False
+
+    def execute(self, sql, params=None):
+        orig = sql
+        sql = sql.replace("?", "%s")
+        is_replace = "INSERT OR REPLACE" in sql
+        is_ignore = "INSERT OR IGNORE" in sql
+        sql = sql.replace("INSERT OR REPLACE", "INSERT").replace("INSERT OR IGNORE", "INSERT")
+        if is_replace and "INTO settings" in sql:
+            sql = sql.rstrip().rstrip(";") + " ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value"
+        elif is_replace:
+            cols = self._extract_cols(sql)
+            if cols:
+                sql = sql.rstrip().rstrip(";") + " ON CONFLICT DO UPDATE SET " + ", ".join(f"{c} = EXCLUDED.{c}" for c in cols)
+        elif is_ignore:
+            sql = sql.rstrip().rstrip(";") + " ON CONFLICT DO NOTHING"
+        cur = self._conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        try:
+            cur.execute(sql, params)
+        except Exception as e:
+            self._conn.rollback()
+            raise
+        return PgCursor(cur)
+
+    @staticmethod
+    def _extract_cols(sql):
+        import re as _re
+        m = _re.search(r'\(([^)]+)\)\s*VALUES', sql, _re.IGNORECASE)
+        if m:
+            return [c.strip() for c in m.group(1).split(',')]
+        return []
+
+    def executescript(self, script):
+        script = script.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
+        script = script.replace("AUTOINCREMENT", "")
+        script = script.replace("TEXT DEFAULT CURRENT_TIMESTAMP", "TEXT DEFAULT (NOW()::TEXT)")
+        for stmt in script.split(";"):
+            stmt = stmt.strip()
+            if stmt:
+                try:
+                    self._conn.cursor().execute(stmt)
+                except Exception as e:
+                    logger.debug(f"DDL skip: {e}")
+        self._conn.commit()
+
+    def commit(self):
+        self._conn.commit()
+    def close(self):
+        self._conn.close()
+    def cursor(self):
+        return self
+
 def get_db():
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA foreign_keys=ON")
-    return conn
+    if USE_PG:
+        conn = psycopg2.connect(DATABASE_URL)
+        return PgConnection(conn)
+    else:
+        conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA foreign_keys=ON")
+        return conn
 
 def get_setting(key, default=''):
     try:
@@ -863,8 +960,8 @@ async def profile_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if u['bio']:
             text += f"\n📝 Bio: {u['bio']}\n"
         kb = [
-            [InlineKeyboardButton("✏️ Edit Bio", callback_data="edit_bio"),
-             InlineKeyboardButton("✏️ Edit Skills", callback_data="edit_skills")],
+            [InlineKeyboardButton("📝 Edit Bio", callback_data="edit_bio"),
+             InlineKeyboardButton("🛠 Edit Skills", callback_data="edit_skills")],
             [InlineKeyboardButton("💼 My Gigs", callback_data="my_gigs_0"),
              InlineKeyboardButton("📦 My Products", callback_data="my_products_0")],
             [back_btn()]
@@ -877,7 +974,7 @@ async def edit_bio_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     user_states[query.from_user.id] = {'state': 'edit_bio'}
-    await query.edit_message_text("✏️ Send your new bio (max 200 chars):",
+    await query.edit_message_text("📝 Send your new bio (max 200 chars):",
                                    reply_markup=InlineKeyboardMarkup([[back_btn("profile")]]))
 
 async def edit_skills_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -1211,6 +1308,54 @@ async def decline_app_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except BadRequest: pass
     except Exception as e: logger.error(f"decline_app error: {e}")
 
+
+async def admin_razorpay_config_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    if query.from_user.id != ADMIN_USER_ID: return
+    gateway = get_setting('payment_gateway', 'manual')
+    rz_key = get_setting('razorpay_key_id', '')
+    rz_secret = get_setting('razorpay_key_secret', '')
+    status_emoji = "\u2705" if (rz_key and rz_secret) else "\u274c"
+    gateway_emoji = "\U0001f537" if gateway == 'razorpay' else "\U0001f4f1"
+    text = (f"<b>\U0001f537 Razorpay Payment Gateway</b>\n\n"
+            f"{gateway_emoji} <b>Active Gateway:</b> {gateway.upper()}\n"
+            f"{status_emoji} <b>API Key:</b> {'<code>' + rz_key[:8] + '...</code>' if rz_key else '<i>Not set</i>'}\n"
+            f"{status_emoji} <b>API Secret:</b> {'<code>****' + rz_secret[-4:] + '</code>' if rz_secret else '<i>Not set</i>'}\n\n"
+            f"\U0001f4a1 <b>How to setup:</b>\n"
+            f"1\ufe0f\u20e3 Go to <a href='https://dashboard.razorpay.com'>Razorpay Dashboard</a>\n"
+            f"2\ufe0f\u20e3 Settings \u2192 API Keys \u2192 Generate Key\n"
+            f"3\ufe0f\u20e3 Set the Key ID and Secret below\n"
+            f"4\ufe0f\u20e3 Switch gateway to <code>razorpay</code>\n\n"
+            f"\u26a1 When active, users get instant payment links (UPI/Card/NetBanking)")
+    kb = [
+        [InlineKeyboardButton("\U0001f511 Set Key ID", callback_data="sedit_razorpay_key_id"),
+         InlineKeyboardButton("\U0001f510 Set Secret", callback_data="sedit_razorpay_key_secret")],
+        [InlineKeyboardButton(f"\U0001f500 Switch to {'Manual' if gateway == 'razorpay' else 'Razorpay'}",
+                              callback_data=f"toggle_razorpay_{'off' if gateway == 'razorpay' else 'on'}")],
+        [back_btn("admin_set_payments")]
+    ]
+    await query.edit_message_text(text, parse_mode=ParseMode.HTML, disable_web_page_preview=True,
+                                   reply_markup=InlineKeyboardMarkup(kb))
+
+async def toggle_razorpay_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    if query.from_user.id != ADMIN_USER_ID: return
+    action = query.data.split("_")[-1]
+    if action == 'on':
+        rz_key = get_setting('razorpay_key_id', '')
+        rz_secret = get_setting('razorpay_key_secret', '')
+        if not rz_key or not rz_secret:
+            await query.answer("\u274c Set Razorpay API Key & Secret first!", show_alert=True)
+            return
+        set_setting('payment_gateway', 'razorpay')
+        await query.answer("\u2705 Switched to Razorpay!", show_alert=True)
+    else:
+        set_setting('payment_gateway', 'manual')
+        await query.answer("\u2705 Switched to Manual UPI!", show_alert=True)
+    await admin_razorpay_config_cb(update, context)
+
 async def deliver_gig_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -1448,7 +1593,7 @@ async def view_product_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if query.from_user.id != p['seller_id']:
             kb.append([InlineKeyboardButton(f"🛒 Buy ({p['price']:.0f} VC)", callback_data=f"buy_product_{prod_id}")])
         if query.from_user.id == p['seller_id']:
-            kb.append([InlineKeyboardButton("✏️ Edit", callback_data=f"edit_product_{prod_id}"),
+            kb.append([InlineKeyboardButton("⚙️ Edit", callback_data=f"edit_product_{prod_id}"),
                         InlineKeyboardButton("🗑️ Delete", callback_data=f"delete_product_{prod_id}")])
         kb.append([back_btn("browse_products_all_0")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -2123,7 +2268,7 @@ def _build_settings_panel(title, keys, back_target):
             if 'api_key' in k and v:
                 display_v = v[:4] + '****'
             text += f"{label}: <code>{display_v}</code>\n"
-            kb.append([InlineKeyboardButton(f"✏️ {label}", callback_data=f"sedit_{k}")])
+            kb.append([InlineKeyboardButton(f"{label}", callback_data=f"sedit_{k}")])
     kb.append([back_btn(back_target)])
     return text, kb
 
@@ -2179,9 +2324,12 @@ async def admin_set_payments_cb(update: Update, context: ContextTypes.DEFAULT_TY
     await query.answer()
     if query.from_user.id != ADMIN_USER_ID: return
     try:
-        keys = ['upi_id', 'payment_instructions', 'min_deposit_inr', 'max_deposit_inr',
+        keys = ['payment_gateway', 'upi_id', 'payment_instructions', 'min_deposit_inr', 'max_deposit_inr',
                 'withdrawal_enabled', 'min_withdrawal_vc', 'max_withdrawal_vc', 'withdrawal_fee_percent']
         text, kb = _build_settings_panel("💳 Payment Settings", keys, "admin_settings")
+        # Add Razorpay config button
+        rz_status = "✅ Connected" if get_setting('razorpay_key_id', '') else "❌ Not Set"
+        kb.insert(-1, [InlineKeyboardButton(f"🔷 Razorpay API ({rz_status})", callback_data="admin_razorpay_config")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
 
@@ -2265,7 +2413,7 @@ async def setting_edit_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         current = get_setting(key)
         cat = SETTING_TO_CATEGORY.get(key, 'admin_settings')
         user_states[ADMIN_USER_ID] = {'state': 'admin_edit_setting', 'edit_key': key, 'back_to': cat}
-        text = (f"✏️ <b>{label}</b>\n"
+        text = (f"<b>{label}</b>\n"
                 f"📌 Now: <code>{current if current else '—'}</code>\n\n"
                 f"Just type the new value below 👇")
         await query.edit_message_text(text, parse_mode=ParseMode.HTML,
@@ -2329,7 +2477,7 @@ async def admin_check_user_cb(update: Update, context: ContextTypes.DEFAULT_TYPE
     await query.answer()
     if query.from_user.id != ADMIN_USER_ID: return
     user_states[ADMIN_USER_ID] = {'state': 'admin_check_user'}
-    await query.edit_message_text("🔍 Type user ID or @username below 👇",
+    await query.edit_message_text("🔍 Type user ID, @username, or name to search 👇",
                                    reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
 
 async def admin_analytics_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -2925,7 +3073,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     await msg.reply_text(t, parse_mode=ParseMode.HTML,
                                           reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📋 View Full", callback_data=f"admin_user_{target_uid}"), back_btn("admin_panel")]]))
                 else:
-                    await msg.reply_text("User not found.")
+                    await msg.reply_text("❌ User not found. Try a different ID, @username, or name.",
+                        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔄 Try Again", callback_data="admin_check_user"), back_btn("admin_panel")]]))
                 user_states.pop(uid, None)
             except Exception as e:
                 logger.error(f"admin_check_user error: {e}")
@@ -3056,6 +3205,8 @@ def main():
     app.add_handler(CallbackQueryHandler(gig_apps_cb, pattern=r"^gig_apps_\d+$"))
     app.add_handler(CallbackQueryHandler(accept_app_cb, pattern=r"^accept_app_\d+$"))
     app.add_handler(CallbackQueryHandler(decline_app_cb, pattern=r"^decline_app_\d+$"))
+    app.add_handler(CallbackQueryHandler(admin_razorpay_config_cb, pattern=r"^admin_razorpay_config$"))
+    app.add_handler(CallbackQueryHandler(toggle_razorpay_cb, pattern=r"^toggle_razorpay_"))
     app.add_handler(CallbackQueryHandler(deliver_gig_cb, pattern=r"^deliver_gig_\d+$"))
     app.add_handler(CallbackQueryHandler(approve_gig_cb, pattern=r"^approve_gig_\d+$"))
     app.add_handler(CallbackQueryHandler(revision_gig_cb, pattern=r"^revision_gig_\d+$"))
