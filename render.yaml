@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: the-vault-bot
+    runtime: docker
+    plan: free
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_USER_ID
+        sync: false
+    disk:
+      name: vault-data
+      mountPath: /app/data
+      sizeGB: 1
