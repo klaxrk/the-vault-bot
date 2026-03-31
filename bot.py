@@ -130,6 +130,9 @@ class PgConnection:
 
     def executescript(self, script):
         script = script.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
+        # Telegram user IDs exceed 32-bit INTEGER range - use BIGINT
+        script = script.replace("INTEGER PRIMARY KEY", "BIGINT PRIMARY KEY")
+        script = script.replace("INTEGER DEFAULT", "BIGINT DEFAULT")
         script = script.replace("AUTOINCREMENT", "")
         script = script.replace("TEXT DEFAULT CURRENT_TIMESTAMP", "TEXT DEFAULT (NOW()::TEXT)")
         for stmt in script.split(";"):
