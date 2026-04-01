@@ -915,7 +915,9 @@ async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text += f"{welcome}\n\n"
         text += (f"\U0001f4b0 Balance: <b>{u['balance']:.1f}</b> {sym}\n"
                  f"\u2b50 Reputation: <b>{u['reputation_score']:.1f}</b>/5.0\n"
-                 f"\U0001f4ca Level {level} \u2014 {get_level_title(level)} ({xp} XP)\n")
+                 f"\U0001f4ca Level {level} \u2014 {get_level_title(level)} ({xp} XP)\n\n"
+                 f"\U0001f4b5 <b>VC Value:</b> 1 {sym.strip()} = \u20b9{get_setting('vc_to_inr_rate','0.05')} | 1 INR = {get_setting('inr_to_vc_rate','10')} {sym.strip()}\n"
+                 f"\U0001f4b8 <i>Complete gigs, sell products & withdraw real money!</i>\n")
         await update.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=main_menu_kb(user.id))
     except Exception as e:
         logger.error(f"start_cmd error: {e}")
