@@ -45,7 +45,7 @@ _SETTINGS_CACHE_TTL = 60  # seconds
 def _get_pool():
     global _pg_pool
     if _pg_pool is None or _pg_pool.closed:
-        _pg_pool = psycopg2.pool.ThreadedConnectionPool(1, 20, DATABASE_URL, options="-c statement_timeout=30000")
+        _pg_pool = psycopg2.pool.ThreadedConnectionPool(1, 20, DATABASE_URL, options="-c statement_timeout=30000 -c idle_in_transaction_session_timeout=60000")
     return _pg_pool
 
 
@@ -172,6 +172,10 @@ class PgConnection:
         self._conn.commit()
     def close(self):
         if self._pool:
+            try:
+                self._conn.rollback()
+            except:
+                pass
             try:
                 self._conn.reset()
             except:
