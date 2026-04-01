@@ -3661,43 +3661,13 @@ def main():
 
     if WEBHOOK_URL:
         logger.info(f"Bot starting webhook on port {PORT}...")
-        import asyncio as _asyncio
-        import tornado.web as _tw
-        class _HealthHandler(_tw.RequestHandler):
-            async def get(self):
-                self.write("OK")
-        async def _run_with_health():
-            async with app:
-                # Retry set_webhook up to 10 times (Telegram flood control)
-                for _retry in range(10):
-                    try:
-                        await app.bot.set_webhook(
-                            url=f"{WEBHOOK_URL}/webhook/{BOT_TOKEN}",
-                            drop_pending_updates=True,
-                        )
-                        break
-                    except Exception as _we:
-                        import asyncio as _asi
-                        await _asi.sleep(5)
-                        if _retry == 9:
-                            raise
-                webserver = await app.updater.start_webhook(
-                    listen="0.0.0.0", port=PORT,
-                    url_path=f"webhook/{BOT_TOKEN}",
-                )
-                # Inject /health and / routes into the tornado app
-                try:
-                    tornado_app = webserver._app
-                    tornado_app.add_handlers(r".*", [
-                        (r"/health", _HealthHandler),
-                        (r"/", _HealthHandler),
-                    ])
-                except Exception:
-                    pass
-                await app.start()
-                logger.info("Bot running (webhook+health).")
-                await _asyncio.Event().wait()
-        _asyncio.run(_run_with_health())
+        app.run_webhook(
+            listen="0.0.0.0",
+            port=PORT,
+            webhook_url=f"{WEBHOOK_URL}/webhook/{BOT_TOKEN}",
+            url_path=f"webhook/{BOT_TOKEN}",
+            drop_pending_updates=True,
+        )
     else:
         import threading as _t
         from http.server import HTTPServer as _HS, BaseHTTPRequestHandler as _BH
