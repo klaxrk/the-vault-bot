@@ -64,7 +64,7 @@ else:
 # Global conversation states
 user_states = {}
 
-async async def safe_answer(query, *args, **kwargs):
+async def safe_answer(query, *args, **kwargs):
     """Safely answer a callback query - silently ignores expired/invalid query errors."""
     try:
         await query.answer(*args, **kwargs)
