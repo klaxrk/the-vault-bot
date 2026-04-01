@@ -42,10 +42,13 @@ _settings_cache = {}
 _settings_cache_time = 0
 _SETTINGS_CACHE_TTL = 60  # seconds
 
+_pg_conn_registry = {}  # track leaked connections
+import time as _time_mod
+
 def _get_pool():
     global _pg_pool
     if _pg_pool is None or _pg_pool.closed:
-        _pg_pool = psycopg2.pool.ThreadedConnectionPool(1, 20, DATABASE_URL, options="-c statement_timeout=30000 -c idle_in_transaction_session_timeout=60000")
+        _pg_pool = psycopg2.pool.ThreadedConnectionPool(1, 10, DATABASE_URL, options="-c statement_timeout=30000 -c idle_in_transaction_session_timeout=10000")
     return _pg_pool
 
 
@@ -170,7 +173,14 @@ class PgConnection:
 
     def commit(self):
         self._conn.commit()
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False
     def close(self):
+        try: _pg_conn_registry.pop(id(self), None)
+        except: pass
         if self._pool:
             try:
                 self._conn.rollback()
@@ -180,9 +190,20 @@ class PgConnection:
                 self._conn.reset()
             except:
                 pass
-            self._pool.putconn(self._conn)
+            try:
+                self._pool.putconn(self._conn)
+            except:
+                pass
         else:
-            self._conn.close()
+            try:
+                self._conn.close()
+            except:
+                pass
+    def __del__(self):
+        try:
+            self.close()
+        except:
+            pass
     def cursor(self):
         return self
 
@@ -190,7 +211,9 @@ def get_db():
     if USE_PG:
         pool = _get_pool()
         conn = pool.getconn()
-        return PgConnection(conn, pool)
+        pc = PgConnection(conn, pool)
+        _pg_conn_registry[id(pc)] = (pc, _time_mod.time())
+        return pc
     else:
         conn = sqlite3.connect(DB_PATH, check_same_thread=False)
         conn.row_factory = sqlite3.Row
@@ -480,8 +503,14 @@ def init_db():
     try:
         conn.execute("ALTER TABLE referral_rewards ADD COLUMN status TEXT DEFAULT 'pending'")
         conn.commit()
-    except: pass
-    conn.commit(); conn.close()
+    except:
+        try: conn._conn.rollback()
+        except: pass
+    try:
+        conn.commit()
+    except:
+        pass
+    conn.close()
     logger.info("Database initialized")
 
 
@@ -3747,6 +3776,23 @@ def main():
                 pass
     _thr.Thread(target=_self_ping, daemon=True).start()
     logger.info("Self-ping keep-alive thread started (every 5 min)")
+
+    # ── Stale connection reaper (closes leaked DB connections) ─────
+    def _reap_stale_connections():
+        import time as _time
+        while True:
+            _time.sleep(15)
+            try:
+                now = _time.time()
+                stale = [(k, pc) for k, (pc, ts) in list(_pg_conn_registry.items()) if now - ts > 30]
+                for k, pc in stale:
+                    try:
+                        logger.warning(f"Reaping stale DB connection (open >30s)")
+                        pc.close()
+                    except: pass
+            except: pass
+    _thr.Thread(target=_reap_stale_connections, daemon=True).start()
+    logger.info("Stale connection reaper started (checks every 15s)")
 
     # ── Polling mode with auto-restart on failure ───
     logger.info("Bot starting polling mode (no webhook port conflict)...")
