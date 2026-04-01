@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python3
 """
 THE VAULT - Telegram Micro-Economy Bot
@@ -226,7 +227,7 @@ def set_setting(key, value):
 def is_maintenance_mode():
     return get_setting('maintenance_mode', '0') == '1'
 
-MAINTENANCE_MSG = "🔧 <b>Under Maintenance</b>\n\nThe bot is currently undergoing maintenance. Please try again later!"
+MAINTENANCE_MSG = "\U0001F527 <b>Under Maintenance</b>\n\nThe bot is currently undergoing maintenance. Please try again later!"
 
 # --- Force Subscribe ---
 async def check_force_sub(bot, user_id):
@@ -255,11 +256,11 @@ def has_claimed_sub_reward(user_id):
 def force_sub_keyboard(channel_url):
     kb = []
     if channel_url:
-        kb.append([InlineKeyboardButton("📢 Join Channel", url=channel_url)])
-    kb.append([InlineKeyboardButton("✅ I've Joined — Verify", callback_data="force_sub_verify")])
+        kb.append([InlineKeyboardButton("\U0001F4E2 Join Channel", url=channel_url)])
+    kb.append([InlineKeyboardButton("\u2705 I've Joined \u2014 Verify", callback_data="force_sub_verify")])
     return InlineKeyboardMarkup(kb)
 
-FORCE_SUB_MSG = ("📢 <b>Join Required!</b>\n\nYou must join our channel to use this bot.\nJoin and tap <b>Verify</b> to continue and get a free <b>{reward} VC</b> reward! 🎁")
+FORCE_SUB_MSG = ("\U0001F4E2 <b>Join Required!</b>\n\nYou must join our channel to use this bot.\nJoin and tap <b>Verify</b> to continue and get a free <b>{reward} VC</b> reward! \U0001F381")
 
 def maintenance_check(func):
     from functools import wraps as _wraps
@@ -397,7 +398,7 @@ def init_db():
         is_read INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS categories (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE NOT NULL, emoji TEXT DEFAULT '📁',
+        id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE NOT NULL, emoji TEXT DEFAULT '\U0001F4C1',
         description TEXT DEFAULT '', is_active INTEGER DEFAULT 1, sort_order INTEGER DEFAULT 0
     );
     CREATE INDEX IF NOT EXISTS idx_tx_user ON transactions(user_id);
@@ -419,7 +420,7 @@ def init_db():
     """)
     # Seed settings
     defaults = {
-        'bot_name': '⚡ THE VAULT', 'currency_name': 'Vault Coins', 'currency_symbol': ' VC',
+        'bot_name': '\u26A1 THE VAULT', 'currency_name': 'Vault Coins', 'currency_symbol': ' VC',
         'currency_code': 'VC', 'inr_to_vc_rate': '10', 'vc_to_inr_rate': '0.05',
         'platform_fee_percent': '12', 'premium_fee_percent': '8',
         'min_deposit_inr': '50', 'max_deposit_inr': '10000',
@@ -452,22 +453,22 @@ def init_db():
     }
     for k, v in defaults.items():
         c.execute("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", (k, v))
-    cats = [('Writing','✍️'),('Design','🎨'),('Programming','💻'),('Marketing','📢'),
-            ('Video/Audio','🎬'),('Data Entry','📊'),('Translation','🌐'),('Education','📚'),
-            ('Social Media','📱'),('Business','💼'),('Music','🎵'),('Other','📦')]
+    cats = [('Writing','\u270D\uFE0F'),('Design','\U0001F3A8'),('Programming','\U0001F4BB'),('Marketing','\U0001F4E2'),
+            ('Video/Audio','\U0001F3AC'),('Data Entry','\U0001F4CA'),('Translation','\U0001F310'),('Education','\U0001F4DA'),
+            ('Social Media','\U0001F4F1'),('Business','\U0001F4BC'),('Music','\U0001F3B5'),('Other','\U0001F4E6')]
     for i,(n,e) in enumerate(cats):
         c.execute("INSERT OR IGNORE INTO categories (name,emoji,sort_order) VALUES (?,?,?)",(n,e,i))
     badges = [
-        ('first_gig','First Gig','🌟','Complete your first gig','completed_gigs',1),
-        ('five_star','Five Star','⭐','Receive a 5-star rating','five_star_ratings',1),
-        ('streak_7','On Fire','🔥','7-day activity streak','streak_days',7),
-        ('big_spender','Big Spender','💰','Spend 5000 VC total','total_spent',5000),
-        ('top_seller','Top Seller','🏆','Earn 10000 VC from sales','total_earned',10000),
-        ('trusted','Trusted','🛡️','Complete 25 gigs with no disputes','completed_gigs_clean',25),
-        ('referral_king','Referral King','👑','Refer 10 users','referral_count',10),
-        ('veteran','Veteran','🎖️','Member for 90 days','account_age_days',90),
-        ('perfectionist','Perfectionist','💎','Maintain 4.8+ rating over 20 ratings','high_rating',20),
-        ('centurion','Centurion','🏛️','Complete 100 transactions','total_transactions',100),
+        ('first_gig','First Gig','\U0001F31F','Complete your first gig','completed_gigs',1),
+        ('five_star','Five Star','\u2B50','Receive a 5-star rating','five_star_ratings',1),
+        ('streak_7','On Fire','\U0001F525','7-day activity streak','streak_days',7),
+        ('big_spender','Big Spender','\U0001F4B0','Spend 5000 VC total','total_spent',5000),
+        ('top_seller','Top Seller','\U0001F3C6','Earn 10000 VC from sales','total_earned',10000),
+        ('trusted','Trusted','\U0001F6E1\uFE0F','Complete 25 gigs with no disputes','completed_gigs_clean',25),
+        ('referral_king','Referral King','\U0001F451','Refer 10 users','referral_count',10),
+        ('veteran','Veteran','\U0001F396\uFE0F','Member for 90 days','account_age_days',90),
+        ('perfectionist','Perfectionist','\U0001F48E','Maintain 4.8+ rating over 20 ratings','high_rating',20),
+        ('centurion','Centurion','\U0001F3DB\uFE0F','Complete 100 transactions','total_transactions',100),
     ]
     for code,name,emoji,desc,ct,cv in badges:
         c.execute("INSERT OR IGNORE INTO badge_definitions (code,name,emoji,description,criteria_type,criteria_value) VALUES (?,?,?,?,?,?)",
@@ -685,7 +686,7 @@ async def check_badges(user_id, bot):
         for nb in new_badges:
             try:
                 await bot.send_message(user_id,
-                    f"🏅 <b>Badge Earned!</b>\n\n{nb['emoji']} <b>{nb['name']}</b>\n{nb['description']}",
+                    f"\U0001F3C5 <b>Badge Earned!</b>\n\n{nb['emoji']} <b>{nb['name']}</b>\n{nb['description']}",
                     parse_mode=ParseMode.HTML)
             except: pass
     conn.close()
@@ -816,21 +817,21 @@ def get_fee_percent(user):
 def main_menu_kb(user_id):
     is_admin = (user_id == ADMIN_USER_ID)
     kb = [
-        [InlineKeyboardButton("💼 Gig Marketplace", callback_data="gigs_menu"),
-         InlineKeyboardButton("🛍️ Digital Store", callback_data="store_menu")],
-        [InlineKeyboardButton("💰 My Wallet", callback_data="wallet"),
-         InlineKeyboardButton("👤 My Profile", callback_data="profile")],
-        [InlineKeyboardButton("🏆 Leaderboard", callback_data="leaderboard"),
-         InlineKeyboardButton("🔔 Notifications", callback_data="notifications")],
-        [InlineKeyboardButton("👥 Referrals", callback_data="referrals"),
-         InlineKeyboardButton("⭐ Premium", callback_data="premium_menu")],
+        [InlineKeyboardButton("\U0001F4BC Gig Marketplace", callback_data="gigs_menu"),
+         InlineKeyboardButton("\U0001F6CD\uFE0F Digital Store", callback_data="store_menu")],
+        [InlineKeyboardButton("\U0001F4B0 My Wallet", callback_data="wallet"),
+         InlineKeyboardButton("\U0001F464 My Profile", callback_data="profile")],
+        [InlineKeyboardButton("\U0001F3C6 Leaderboard", callback_data="leaderboard"),
+         InlineKeyboardButton("\U0001F514 Notifications", callback_data="notifications")],
+        [InlineKeyboardButton("\U0001F465 Referrals", callback_data="referrals"),
+         InlineKeyboardButton("\u2B50 Premium", callback_data="premium_menu")],
     ]
     if is_admin:
-        kb.append([InlineKeyboardButton("🔧 Admin Panel", callback_data="admin_panel")])
+        kb.append([InlineKeyboardButton("\U0001F527 Admin Panel", callback_data="admin_panel")])
     return InlineKeyboardMarkup(kb)
 
 def back_btn(cb_data="main_menu"):
-    return InlineKeyboardButton("◀️ Back", callback_data=cb_data)
+    return InlineKeyboardButton("\u25C0\uFE0F Back", callback_data=cb_data)
 
 # ============================================================
 # MAIN MENU & START
@@ -841,7 +842,7 @@ async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user = update.effective_user
         u = ensure_user(user.id, user.username, user.first_name)
         if u['is_banned']:
-            await update.message.reply_text(f"⛔ You are banned.\nReason: {u['ban_reason']}")
+            await update.message.reply_text(f"\u26D4 You are banned.\nReason: {u['ban_reason']}")
             return
         # Force subscribe check
         is_member, channel_url = await check_force_sub(context.bot, user.id)
@@ -926,15 +927,15 @@ async def force_sub_verify_cb(update: Update, context: ContextTypes.DEFAULT_TYPE
     try:
         is_member, channel_url = await check_force_sub(context.bot, user.id)
         if not is_member:
-            await safe_answer(query, "❌ You haven't joined the channel yet!", show_alert=True)
+            await safe_answer(query, "\u274C You haven't joined the channel yet!", show_alert=True)
             return
-        await safe_answer(query, "✅ Verified! Welcome!", show_alert=True)
+        await safe_answer(query, "\u2705 Verified! Welcome!", show_alert=True)
         u = ensure_user(user.id, user.username, user.first_name)
         reward = float(get_setting('force_sub_reward_vc', '25'))
         if reward > 0 and not has_claimed_sub_reward(user.id):
             add_balance(user.id, reward, 'force_sub_reward', f'Channel join reward: {reward} VC')
             try:
-                await context.bot.send_message(user.id, f"🎁 <b>+{reward} VC</b> credited for joining the channel!", parse_mode=ParseMode.HTML)
+                await context.bot.send_message(user.id, f"\U0001F381 <b>+{reward} VC</b> credited for joining the channel!", parse_mode=ParseMode.HTML)
             except: pass
         pending = user_states.pop(user.id, None)
         if pending and pending.get('state') == 'force_sub_pending' and pending.get('ref_code'):
@@ -950,52 +951,52 @@ async def force_sub_verify_cb(update: Update, context: ContextTypes.DEFAULT_TYPE
                         add_balance(referrer['user_id'], bonus, 'referral_bonus', f'Referral bonus for inviting user {user.id}')
                         conn.execute("UPDATE users SET referral_earnings=referral_earnings+? WHERE user_id=?", (bonus, referrer['user_id']))
                         try:
-                            await context.bot.send_message(referrer['user_id'], f"🎉 <b>Referral Bonus!</b>\n{user.first_name} joined and verified!\n+{bonus} VC credited!", parse_mode=ParseMode.HTML)
+                            await context.bot.send_message(referrer['user_id'], f"\U0001F389 <b>Referral Bonus!</b>\n{user.first_name} joined and verified!\n+{bonus} VC credited!", parse_mode=ParseMode.HTML)
                         except: pass
                     conn.commit()
                 conn.close()
-        bot_name = get_setting('bot_name', '⚡ THE VAULT')
+        bot_name = get_setting('bot_name', '\u26A1 THE VAULT')
         sym = get_setting('currency_symbol', ' VC')
         u = ensure_user(user.id, user.username, user.first_name)
         level, xp = calculate_level(u)
         is_first_time = (u['completed_gigs'] == 0 and u['total_earned'] == 0 and u['total_spent'] == 0)
-        text = f"<b>{bot_name}</b>\n\n✅ Channel verified! Welcome aboard!\n\n"
+        text = f"<b>{bot_name}</b>\n\n\u2705 Channel verified! Welcome aboard!\n\n"
         if reward > 0:
-            text += f"🎁 <b>+{reward} VC</b> credited for joining!\n\n"
+            text += f"\U0001F381 <b>+{reward} VC</b> credited for joining!\n\n"
         if is_first_time:
             text += (
-                f"━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"📖 <b>QUICK START GUIDE</b>\n"
-                f"━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                f"💰 <b>What is {sym.strip()}?</b>\n"
-                f"   Virtual currency for everything here —\n"
+                f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
+                f"\U0001F4D6 <b>QUICK START GUIDE</b>\n"
+                f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n"
+                f"\U0001F4B0 <b>What is {sym.strip()}?</b>\n"
+                f"   Virtual currency for everything here \u2014\n"
                 f"   earning, spending, tipping & trading.\n"
-                f"   💱 <b>Rate:</b> 1 INR = {get_setting('inr_to_vc_rate','10')} {sym.strip()} | 1 {sym.strip()} = ₹{get_setting('vc_to_inr_rate','0.05')}\n\n"
-                f"💼 <b>Gig Marketplace</b>\n"
-                f"   → Browse gigs & apply to earn {sym.strip()}\n"
-                f"   → Post gigs to hire others for tasks\n"
-                f"   → Funds held in escrow for safety\n\n"
-                f"🛍️ <b>Digital Store</b>\n"
-                f"   → Buy & sell digital products instantly\n"
-                f"   → List your own files, templates, guides\n\n"
-                f"💳 <b>Wallet & Deposits</b>\n"
-                f"   → Deposit real money → get {sym.strip()}\n"
-                f"   → Withdraw {sym.strip()} → get paid out\n\n"
-                f"⭐ <b>Reputation & Levels</b>\n"
-                f"   → Complete gigs & get reviews to build rep\n"
-                f"   → Earn XP from activity → level up for perks\n\n"
-                f"👥 <b>Referrals</b>\n"
-                f"   → Share your link → earn bonus {sym.strip()}\n\n"
-                f"💎 <b>Premium</b>\n"
-                f"   → Lower fees, featured listings & more\n\n"
-                f"━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"💡 <b>Tip:</b> Start by browsing <i>Gig Marketplace</i>\n"
+                f"   \U0001F4B1 <b>Rate:</b> 1 INR = {get_setting('inr_to_vc_rate','10')} {sym.strip()} | 1 {sym.strip()} = \u20B9{get_setting('vc_to_inr_rate','0.05')}\n\n"
+                f"\U0001F4BC <b>Gig Marketplace</b>\n"
+                f"   \u2192 Browse gigs & apply to earn {sym.strip()}\n"
+                f"   \u2192 Post gigs to hire others for tasks\n"
+                f"   \u2192 Funds held in escrow for safety\n\n"
+                f"\U0001F6CD\uFE0F <b>Digital Store</b>\n"
+                f"   \u2192 Buy & sell digital products instantly\n"
+                f"   \u2192 List your own files, templates, guides\n\n"
+                f"\U0001F4B3 <b>Wallet & Deposits</b>\n"
+                f"   \u2192 Deposit real money \u2192 get {sym.strip()}\n"
+                f"   \u2192 Withdraw {sym.strip()} \u2192 get paid out\n\n"
+                f"\u2B50 <b>Reputation & Levels</b>\n"
+                f"   \u2192 Complete gigs & get reviews to build rep\n"
+                f"   \u2192 Earn XP from activity \u2192 level up for perks\n\n"
+                f"\U0001F465 <b>Referrals</b>\n"
+                f"   \u2192 Share your link \u2192 earn bonus {sym.strip()}\n\n"
+                f"\U0001F48E <b>Premium</b>\n"
+                f"   \u2192 Lower fees, featured listings & more\n\n"
+                f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n"
+                f"\U0001F4A1 <b>Tip:</b> Start by browsing <i>Gig Marketplace</i>\n"
                 f"or tap <i>My Wallet</i> to add funds!\n"
-                f"━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                f"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n"
             )
-        text += (f"💰 Balance: <b>{u['balance']:.1f}</b> {sym}\n"
-                 f"⭐ Reputation: <b>{u['reputation_score']:.1f}</b>/5.0\n"
-                 f"📊 Level {level} — {get_level_title(level)} ({xp} XP)\n")
+        text += (f"\U0001F4B0 Balance: <b>{u['balance']:.1f}</b> {sym}\n"
+                 f"\u2B50 Reputation: <b>{u['reputation_score']:.1f}</b>/5.0\n"
+                 f"\U0001F4CA Level {level} \u2014 {get_level_title(level)} ({xp} XP)\n")
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=main_menu_kb(user.id))
     except BadRequest: pass
     except Exception as e:
@@ -1008,20 +1009,20 @@ async def main_menu_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user = query.from_user
         u = ensure_user(user.id, user.username, user.first_name)
         if u['is_banned']:
-            await query.edit_message_text(f"⛔ Banned: {u['ban_reason']}")
+            await query.edit_message_text(f"\u26D4 Banned: {u['ban_reason']}")
             return
         is_member, channel_url = await check_force_sub(context.bot, user.id)
         if not is_member and user.id != ADMIN_USER_ID:
             reward = get_setting('force_sub_reward_vc', '25')
             await query.edit_message_text(FORCE_SUB_MSG.format(reward=reward), parse_mode=ParseMode.HTML, reply_markup=force_sub_keyboard(channel_url))
             return
-        bot_name = get_setting('bot_name', '⚡ THE VAULT')
+        bot_name = get_setting('bot_name', '\u26A1 THE VAULT')
         sym = get_setting('currency_symbol', ' VC')
         level, xp = calculate_level(u)
         text = (f"<b>{bot_name}</b>\n\n"
-                f"💰 Balance: <b>{u['balance']:.1f}</b> {sym}\n"
-                f"⭐ Reputation: <b>{u['reputation_score']:.1f}</b>/5.0\n"
-                f"📊 Level {level} — {get_level_title(level)}\n")
+                f"\U0001F4B0 Balance: <b>{u['balance']:.1f}</b> {sym}\n"
+                f"\u2B50 Reputation: <b>{u['reputation_score']:.1f}</b>/5.0\n"
+                f"\U0001F4CA Level {level} \u2014 {get_level_title(level)}\n")
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=main_menu_kb(user.id))
     except BadRequest:
         pass
@@ -1040,16 +1041,16 @@ async def wallet_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user = query.from_user
         u = ensure_user(user.id)
         sym = get_setting('currency_symbol', ' VC')
-        text = (f"<b>💰 My Wallet</b>\n\n"
+        text = (f"<b>\U0001F4B0 My Wallet</b>\n\n"
                 f"Available: <b>{u['balance']:.1f}</b> {sym}\n"
                 f"In Escrow: <b>{u['frozen_balance']:.1f}</b> {sym}\n"
                 f"Total Earned: <b>{u['total_earned']:.1f}</b> {sym}\n"
                 f"Total Spent: <b>{u['total_spent']:.1f}</b> {sym}\n"
                 f"Total Withdrawn: <b>{u['total_withdrawn']:.1f}</b> {sym}\n")
         kb = [
-            [InlineKeyboardButton("📥 Deposit", callback_data="deposit"),
-             InlineKeyboardButton("📤 Withdraw", callback_data="withdraw")],
-            [InlineKeyboardButton("📋 Transaction History", callback_data="tx_history_0")],
+            [InlineKeyboardButton("\U0001F4E5 Deposit", callback_data="deposit"),
+             InlineKeyboardButton("\U0001F4E4 Withdraw", callback_data="withdraw")],
+            [InlineKeyboardButton("\U0001F4CB Transaction History", callback_data="tx_history_0")],
             [back_btn()]
         ]
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -1069,18 +1070,18 @@ async def tx_history_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         total = conn.execute("SELECT COUNT(*) as c FROM transactions WHERE user_id=?", (user.id,)).fetchone()['c']
         conn.close()
         if not txs:
-            text = "<b>📜 Transaction History</b>\n\nNo transactions yet."
+            text = "<b>\U0001F4DC Transaction History</b>\n\nNo transactions yet."
         else:
-            text = "<b>📜 Transaction History</b>\n\n"
+            text = "<b>\U0001F4DC Transaction History</b>\n\n"
             for tx in txs:
                 sign = "+" if tx['amount'] > 0 else ""
-                text += f"{'🟢' if tx['amount']>0 else '🔴'} {sign}{tx['amount']:.1f} VC — {tx['type']}\n"
+                text += f"{'\U0001F7E2' if tx['amount']>0 else '\U0001F534'} {sign}{tx['amount']:.1f} VC \u2014 {tx['type']}\n"
                 text += f"   <i>{tx['description'][:50]}</i>\n"
                 text += f"   {tx['created_at'][:16]}\n\n"
         kb = []
         nav = []
-        if page > 0: nav.append(InlineKeyboardButton("◀️ Prev", callback_data=f"tx_history_{page-1}"))
-        if (page+1)*10 < total: nav.append(InlineKeyboardButton("▶️ Next", callback_data=f"tx_history_{page+1}"))
+        if page > 0: nav.append(InlineKeyboardButton("\u25C0\uFE0F Prev", callback_data=f"tx_history_{page-1}"))
+        if (page+1)*10 < total: nav.append(InlineKeyboardButton("\u25B6\uFE0F Next", callback_data=f"tx_history_{page+1}"))
         if nav: kb.append(nav)
         kb.append([back_btn("wallet")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -1104,27 +1105,27 @@ async def deposit_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         gateway = get_setting('payment_gateway', 'manual')
         razorpay_key = get_setting('razorpay_key_id', '')
         if gateway == 'razorpay' and razorpay_key:
-            text = (f"<b>💳 Deposit Vault Coins</b>\n\n"
-                    f"💱 Rate: ₹1 = {rate} VC\n"
-                    f"📌 Min: ₹{min_dep} | Max: ₹{max_dep}\n\n"
-                    f"🔐 <b>Razorpay Payment Gateway</b> enabled\n\n"
+            text = (f"<b>\U0001F4B3 Deposit Vault Coins</b>\n\n"
+                    f"\U0001F4B1 Rate: \u20B91 = {rate} VC\n"
+                    f"\U0001F4CC Min: \u20B9{min_dep} | Max: \u20B9{max_dep}\n\n"
+                    f"\U0001F510 <b>Razorpay Payment Gateway</b> enabled\n\n"
                     f"Send the amount in INR (e.g. <code>100</code>)\n"
                     f"A payment link will be generated automatically!")
             user_states[query.from_user.id] = {'state': 'deposit_amount'}
             await query.edit_message_text(text, parse_mode=ParseMode.HTML,
                                            reply_markup=InlineKeyboardMarkup([[back_btn("wallet")]]))
         elif upi:
-            text = (f"<b>💳 Deposit Vault Coins</b>\n\n"
-                    f"💱 Rate: ₹1 = {rate} VC\n"
-                    f"📌 Min: ₹{min_dep} | Max: ₹{max_dep}\n\n"
+            text = (f"<b>\U0001F4B3 Deposit Vault Coins</b>\n\n"
+                    f"\U0001F4B1 Rate: \u20B91 = {rate} VC\n"
+                    f"\U0001F4CC Min: \u20B9{min_dep} | Max: \u20B9{max_dep}\n\n"
                     f"<b>UPI ID:</b> <code>{upi}</code>\n\n"
-                    f"📋 {instr}\n\n"
+                    f"\U0001F4CB {instr}\n\n"
                     f"Send the amount in INR as a message (e.g. <code>100</code>)")
             user_states[query.from_user.id] = {'state': 'deposit_amount'}
             await query.edit_message_text(text, parse_mode=ParseMode.HTML,
                                            reply_markup=InlineKeyboardMarkup([[back_btn("wallet")]]))
         else:
-            await query.edit_message_text("⚠️ Deposits not configured yet. Contact admin.",
+            await query.edit_message_text("\u26A0\uFE0F Deposits not configured yet. Contact admin.",
                                            reply_markup=InlineKeyboardMarkup([[back_btn("wallet")]]))
     except BadRequest: pass
     except Exception as e: logger.error(f"deposit error: {e}")
@@ -1136,7 +1137,7 @@ async def withdraw_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         u = ensure_user(query.from_user.id)
         if get_setting('withdrawal_enabled', '0') != '1':
-            await query.edit_message_text("⚠️ Withdrawals are currently disabled.",
+            await query.edit_message_text("\u26A0\uFE0F Withdrawals are currently disabled.",
                                            reply_markup=InlineKeyboardMarkup([[back_btn("wallet")]]))
             return
         min_vc = get_setting('min_withdrawal_vc', '2000')
@@ -1145,22 +1146,22 @@ async def withdraw_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         fee_pct = get_setting('withdrawal_fee_percent', '10')
         # Check requirements
         if get_setting('require_verified_for_withdrawal', '1') == '1' and not u['is_seller_verified']:
-            await query.edit_message_text("⚠️ You must be verified to withdraw. Complete gigs to build reputation.",
+            await query.edit_message_text("\u26A0\uFE0F You must be verified to withdraw. Complete gigs to build reputation.",
                                            reply_markup=InlineKeyboardMarkup([[back_btn("wallet")]]))
             return
         min_rep = float(get_setting('min_reputation_for_withdrawal', '2.0'))
         if u['reputation_score'] < min_rep:
-            await query.edit_message_text(f"⚠️ Min reputation {min_rep} required. Current: {u['reputation_score']}",
+            await query.edit_message_text(f"\u26A0\uFE0F Min reputation {min_rep} required. Current: {u['reputation_score']}",
                                            reply_markup=InlineKeyboardMarkup([[back_btn("wallet")]]))
             return
         min_gigs = int(get_setting('min_completed_gigs_for_withdrawal', '3'))
         if u['completed_gigs'] < min_gigs:
-            await query.edit_message_text(f"⚠️ Complete at least {min_gigs} gigs first. Current: {u['completed_gigs']}",
+            await query.edit_message_text(f"\u26A0\uFE0F Complete at least {min_gigs} gigs first. Current: {u['completed_gigs']}",
                                            reply_markup=InlineKeyboardMarkup([[back_btn("wallet")]]))
             return
-        text = (f"<b>💸 Withdraw</b>\n\n"
+        text = (f"<b>\U0001F4B8 Withdraw</b>\n\n"
                 f"Balance: {u['balance']:.1f} VC\n"
-                f"Rate: 1 VC = ₹{rate}\n"
+                f"Rate: 1 VC = \u20B9{rate}\n"
                 f"Fee: {fee_pct}%\n"
                 f"Min: {min_vc} VC | Max: {max_vc} VC\n\n"
                 f"Send amount of VC to withdraw (e.g. <code>2000</code>)")
@@ -1189,23 +1190,23 @@ async def profile_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         badge_defs = {dict(b)['code']: dict(b) for b in conn.execute("SELECT * FROM badge_definitions").fetchall()}
         conn.close()
         badge_str = ' '.join(badge_defs[b]['emoji'] for b in badges_list if b in badge_defs) if badges_list else 'None yet'
-        prem = "✅ Premium" if is_premium(u) else "Free"
+        prem = "\u2705 Premium" if is_premium(u) else "Free"
         comp_rate = round(u['completed_gigs'] / max(u['completed_gigs'] + u['failed_gigs'], 1) * 100)
-        text = (f"<b>👤 Profile — {user.first_name}</b>\n"
+        text = (f"<b>\U0001F464 Profile \u2014 {user.first_name}</b>\n"
                 f"@{user.username or 'N/A'}\n\n"
-                f"📊 Level {level} — {get_level_title(level)} ({xp} XP)\n"
-                f"⭐ Reputation: {u['reputation_score']:.1f}/5.0\n"
-                f"💰 Balance: {u['balance']:.1f} {sym}\n"
-                f"🏷️ Status: {prem}\n"
-                f"✅ Gigs Completed: {u['completed_gigs']} ({comp_rate}% rate)\n"
-                f"🏅 Badges: {badge_str}\n")
+                f"\U0001F4CA Level {level} \u2014 {get_level_title(level)} ({xp} XP)\n"
+                f"\u2B50 Reputation: {u['reputation_score']:.1f}/5.0\n"
+                f"\U0001F4B0 Balance: {u['balance']:.1f} {sym}\n"
+                f"\U0001F3F7\uFE0F Status: {prem}\n"
+                f"\u2705 Gigs Completed: {u['completed_gigs']} ({comp_rate}% rate)\n"
+                f"\U0001F3C5 Badges: {badge_str}\n")
         if u['bio']:
-            text += f"\n📝 Bio: {u['bio']}\n"
+            text += f"\n\U0001F4DD Bio: {u['bio']}\n"
         kb = [
-            [InlineKeyboardButton("📝 Edit Bio", callback_data="edit_bio"),
-             InlineKeyboardButton("🛠 Edit Skills", callback_data="edit_skills")],
-            [InlineKeyboardButton("💼 My Gigs", callback_data="my_gigs_0"),
-             InlineKeyboardButton("📦 My Products", callback_data="my_products_0")],
+            [InlineKeyboardButton("\U0001F4DD Edit Bio", callback_data="edit_bio"),
+             InlineKeyboardButton("\U0001F6E0 Edit Skills", callback_data="edit_skills")],
+            [InlineKeyboardButton("\U0001F4BC My Gigs", callback_data="my_gigs_0"),
+             InlineKeyboardButton("\U0001F4E6 My Products", callback_data="my_products_0")],
             [back_btn()]
         ]
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -1217,7 +1218,7 @@ async def edit_bio_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await safe_answer(query)
     user_states[query.from_user.id] = {'state': 'edit_bio'}
-    await query.edit_message_text("📝 Send your new bio (max 200 chars):",
+    await query.edit_message_text("\U0001F4DD Send your new bio (max 200 chars):",
                                    reply_markup=InlineKeyboardMarkup([[back_btn("profile")]]))
 
 @maintenance_check
@@ -1225,7 +1226,7 @@ async def edit_skills_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await safe_answer(query)
     user_states[query.from_user.id] = {'state': 'edit_skills'}
-    await query.edit_message_text("🔧 Send your skills separated by commas\n(e.g. Python, Design, Marketing):",
+    await query.edit_message_text("\U0001F527 Send your skills separated by commas\n(e.g. Python, Design, Marketing):",
                                    reply_markup=InlineKeyboardMarkup([[back_btn("profile")]]))
 
 # ============================================================
@@ -1242,11 +1243,11 @@ async def referrals_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         link = f"https://t.me/{bot_me.username}?start={u['referral_code']}"
         pct = get_setting('referral_percent_on_transactions', '5')
         bonus = get_setting('referral_bonus_vc', '50')
-        text = (f"<b>👥 Referral Program</b>\n\n"
-                f"🔗 Your link:\n<code>{link}</code>\n\n"
-                f"👥 Referrals: <b>{u['referral_count']}</b>\n"
-                f"💰 Earned: <b>{u['referral_earnings']:.1f}</b> VC\n\n"
-                f"💡 Earn {bonus} VC per signup + {pct}% of platform fees from their transactions!")
+        text = (f"<b>\U0001F465 Referral Program</b>\n\n"
+                f"\U0001F517 Your link:\n<code>{link}</code>\n\n"
+                f"\U0001F465 Referrals: <b>{u['referral_count']}</b>\n"
+                f"\U0001F4B0 Earned: <b>{u['referral_earnings']:.1f}</b> VC\n\n"
+                f"\U0001F4A1 Earn {bonus} VC per signup + {pct}% of platform fees from their transactions!")
         await query.edit_message_text(text, parse_mode=ParseMode.HTML,
                                        reply_markup=InlineKeyboardMarkup([[back_btn()]]))
     except BadRequest: pass
@@ -1263,10 +1264,10 @@ async def premium_menu_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         u = ensure_user(query.from_user.id)
         if get_setting('premium_enabled', '1') != '1':
-            await query.edit_message_text("⚠️ Premium is currently disabled.",
+            await query.edit_message_text("\u26A0\uFE0F Premium is currently disabled.",
                                            reply_markup=InlineKeyboardMarkup([[back_btn()]]))
             return
-        features = get_setting('premium_features', '').replace('|', '\n• ')
+        features = get_setting('premium_features', '').replace('|', '\n\u2022 ')
         mp = get_setting('premium_monthly_price', '500')
         qp = get_setting('premium_quarterly_price', '1200')
         yp = get_setting('premium_yearly_price', '4000')
@@ -1278,39 +1279,39 @@ async def premium_menu_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 (query.from_user.id,)).fetchone()
             conn_p.close()
             current_plan = current_purchase['plan'] if current_purchase else 'unknown'
-            plan_labels = {'monthly': '📅 Monthly', 'quarterly': '📅 Quarterly', 'yearly': '📅 Yearly'}
+            plan_labels = {'monthly': '\U0001F4C5 Monthly', 'quarterly': '\U0001F4C5 Quarterly', 'yearly': '\U0001F4C5 Yearly'}
             current_label = plan_labels.get(current_plan, current_plan.title())
-            text = (f"<b>⭐ Premium Status: ACTIVE</b>\n"
-                    f"📋 Current Plan: <b>{current_label}</b>\n"
-                    f"📆 Expires: <b>{u['premium_expires'][:10]}</b>\n\n"
-                    f"<b>Your Benefits:</b>\n• {features}\n\n")
+            text = (f"<b>\u2B50 Premium Status: ACTIVE</b>\n"
+                    f"\U0001F4CB Current Plan: <b>{current_label}</b>\n"
+                    f"\U0001F4C6 Expires: <b>{u['premium_expires'][:10]}</b>\n\n"
+                    f"<b>Your Benefits:</b>\n\u2022 {features}\n\n")
             # Show upgrade/extend options
             upgrade_kb = []
             if current_plan != 'quarterly':
                 upgrade_kb.append([InlineKeyboardButton(
-                    f"⬆️ {'Upgrade to' if current_plan == 'monthly' else 'Switch to'} Quarterly ({qp} VC)",
+                    f"\u2B06\uFE0F {'Upgrade to' if current_plan == 'monthly' else 'Switch to'} Quarterly ({qp} VC)",
                     callback_data="buy_premium_quarterly")])
             if current_plan != 'yearly':
                 upgrade_kb.append([InlineKeyboardButton(
-                    f"⬆️ {'Upgrade to' if current_plan != 'yearly' else 'Switch to'} Yearly ({yp} VC)",
+                    f"\u2B06\uFE0F {'Upgrade to' if current_plan != 'yearly' else 'Switch to'} Yearly ({yp} VC)",
                     callback_data="buy_premium_yearly")])
             current_price = {'monthly': mp, 'quarterly': qp, 'yearly': yp}.get(current_plan, mp)
             upgrade_kb.append([InlineKeyboardButton(
-                f"🔄 Extend {current_label} (+{current_price} VC)",
+                f"\U0001F504 Extend {current_label} (+{current_price} VC)",
                 callback_data=f"buy_premium_{current_plan}")])
             text += "<b>Manage Plan:</b>"
             kb = upgrade_kb + [[back_btn()]]
         else:
-            text = (f"<b>⭐ Premium Membership</b>\n\n"
-                    f"<b>Benefits:</b>\n• {features}\n\n"
+            text = (f"<b>\u2B50 Premium Membership</b>\n\n"
+                    f"<b>Benefits:</b>\n\u2022 {features}\n\n"
                     f"<b>Plans:</b>\n"
-                    f"📅 Monthly: {mp} VC\n"
-                    f"📅 Quarterly: {qp} VC\n"
-                    f"📅 Yearly: {yp} VC")
+                    f"\U0001F4C5 Monthly: {mp} VC\n"
+                    f"\U0001F4C5 Quarterly: {qp} VC\n"
+                    f"\U0001F4C5 Yearly: {yp} VC")
             kb = [
-                [InlineKeyboardButton(f"📅 Monthly ({mp} VC)", callback_data="buy_premium_monthly")],
-                [InlineKeyboardButton(f"📅 Quarterly ({qp} VC)", callback_data="buy_premium_quarterly")],
-                [InlineKeyboardButton(f"📅 Yearly ({yp} VC)", callback_data="buy_premium_yearly")],
+                [InlineKeyboardButton(f"\U0001F4C5 Monthly ({mp} VC)", callback_data="buy_premium_monthly")],
+                [InlineKeyboardButton(f"\U0001F4C5 Quarterly ({qp} VC)", callback_data="buy_premium_quarterly")],
+                [InlineKeyboardButton(f"\U0001F4C5 Yearly ({yp} VC)", callback_data="buy_premium_yearly")],
                 [back_btn()]
             ]
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -1332,7 +1333,7 @@ async def buy_premium_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         price, days = prices[plan]
         if not deduct_balance(query.from_user.id, price, 'premium_purchase', f'Premium {plan} purchase'):
-            await query.edit_message_text(f"❌ Insufficient balance. Need {price} VC.",
+            await query.edit_message_text(f"\u274C Insufficient balance. Need {price} VC.",
                                            reply_markup=InlineKeyboardMarkup([[back_btn("premium_menu")]]))
             return
         expires = (datetime.now() + timedelta(days=days)).isoformat()
@@ -1341,15 +1342,15 @@ async def buy_premium_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         conn.execute("INSERT INTO premium_purchases (user_id, plan, price, duration_days, expires_at) VALUES (?,?,?,?,?)",
                       (query.from_user.id, plan, price, days, expires))
         conn.commit(); conn.close()
-        features = get_setting('premium_features', '').replace('|', '\n• ')
+        features = get_setting('premium_features', '').replace('|', '\n\u2022 ')
         mp = get_setting('premium_monthly_price', '500')
         qp = get_setting('premium_quarterly_price', '1200')
         yp = get_setting('premium_yearly_price', '4000')
-        plan_labels = {'monthly': '📅 Monthly', 'quarterly': '📅 Quarterly', 'yearly': '📅 Yearly'}
-        success_text = (f"🎉 <b>Premium Activated!</b>\n\n"
-                        f"📋 Plan: <b>{plan_labels.get(plan, plan.title())}</b>\n"
-                        f"📆 Expires: <b>{expires[:10]}</b>\n\n"
-                        f"<b>Your Benefits:</b>\n• {features}\n\n")
+        plan_labels = {'monthly': '\U0001F4C5 Monthly', 'quarterly': '\U0001F4C5 Quarterly', 'yearly': '\U0001F4C5 Yearly'}
+        success_text = (f"\U0001F389 <b>Premium Activated!</b>\n\n"
+                        f"\U0001F4CB Plan: <b>{plan_labels.get(plan, plan.title())}</b>\n"
+                        f"\U0001F4C6 Expires: <b>{expires[:10]}</b>\n\n"
+                        f"<b>Your Benefits:</b>\n\u2022 {features}\n\n")
         post_kb = []
         success_text += "\n<b>\U0001f4cb Other Plans & Options:</b>\n"
         if plan != 'monthly':
@@ -1384,15 +1385,15 @@ async def gigs_menu_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await safe_answer(query)
     try:
         kb = [
-            [InlineKeyboardButton("🔍 Browse Gigs", callback_data="browse_gigs_all_0"),
-             InlineKeyboardButton("📝 Post a Gig", callback_data="post_gig")],
-            [InlineKeyboardButton("🔍 Search Gigs", callback_data="search_gigs"),
-             InlineKeyboardButton("📂 By Category", callback_data="gig_categories")],
-            [InlineKeyboardButton("📋 My Posted Gigs", callback_data="my_gigs_0"),
-             InlineKeyboardButton("🔨 My Work", callback_data="my_work_0")],
+            [InlineKeyboardButton("\U0001F50D Browse Gigs", callback_data="browse_gigs_all_0"),
+             InlineKeyboardButton("\U0001F4DD Post a Gig", callback_data="post_gig")],
+            [InlineKeyboardButton("\U0001F50D Search Gigs", callback_data="search_gigs"),
+             InlineKeyboardButton("\U0001F4C2 By Category", callback_data="gig_categories")],
+            [InlineKeyboardButton("\U0001F4CB My Posted Gigs", callback_data="my_gigs_0"),
+             InlineKeyboardButton("\U0001F528 My Work", callback_data="my_work_0")],
             [back_btn()]
         ]
-        await query.edit_message_text("<b>💼 Gig Marketplace</b>\n\nFind work or hire talent!",
+        await query.edit_message_text("<b>\U0001F4BC Gig Marketplace</b>\n\nFind work or hire talent!",
                                        parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
 
@@ -1410,7 +1411,7 @@ async def gig_categories_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 kb.append(row); row = []
         if row: kb.append(row)
         kb.append([back_btn("gigs_menu")])
-        await query.edit_message_text("<b>📂 Gig Categories</b>", parse_mode=ParseMode.HTML,
+        await query.edit_message_text("<b>\U0001F4C2 Gig Categories</b>", parse_mode=ParseMode.HTML,
                                        reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
 
@@ -1431,19 +1432,19 @@ async def browse_gigs_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
             total = conn.execute("SELECT COUNT(*) as c FROM gigs WHERE status='open' AND category=?", (category,)).fetchone()['c']
         conn.close()
         if not gigs:
-            text = "<b>💼 Gigs</b>\n\nNo open gigs found."
+            text = "<b>\U0001F4BC Gigs</b>\n\nNo open gigs found."
         else:
-            text = f"<b>💼 Open Gigs</b> ({category if category!='all' else 'All'})\n\n"
+            text = f"<b>\U0001F4BC Open Gigs</b> ({category if category!='all' else 'All'})\n\n"
             for g in gigs:
-                feat = "⭐ " if g['is_featured'] else ""
-                text += f"{feat}<b>{g['title']}</b>\n💰 {g['budget']:.0f} VC | 📂 {g['category']} | ⏰ {g['deadline_hours']}h\n"
-                text += f"👤 {g['first_name']} (⭐{g['reputation_score']:.1f})\n\n"
+                feat = "\u2B50 " if g['is_featured'] else ""
+                text += f"{feat}<b>{g['title']}</b>\n\U0001F4B0 {g['budget']:.0f} VC | \U0001F4C2 {g['category']} | \u23F0 {g['deadline_hours']}h\n"
+                text += f"\U0001F464 {g['first_name']} (\u2B50{g['reputation_score']:.1f})\n\n"
         kb = []
         for g in gigs:
             kb.append([InlineKeyboardButton(f"{g['title'][:30]}", callback_data=f"view_gig_{g['id']}")])
         nav = []
-        if page > 0: nav.append(InlineKeyboardButton("◀️ Prev", callback_data=f"browse_gigs_{category}_{page-1}"))
-        if (page+1)*8 < total: nav.append(InlineKeyboardButton("▶️ Next", callback_data=f"browse_gigs_{category}_{page+1}"))
+        if page > 0: nav.append(InlineKeyboardButton("\u25C0\uFE0F Prev", callback_data=f"browse_gigs_{category}_{page-1}"))
+        if (page+1)*8 < total: nav.append(InlineKeyboardButton("\u25B6\uFE0F Next", callback_data=f"browse_gigs_{category}_{page+1}"))
         if nav: kb.append(nav)
         kb.append([back_btn("gigs_menu")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -1464,30 +1465,30 @@ async def view_gig_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         apps = conn.execute("SELECT COUNT(*) as c FROM gig_applications WHERE gig_id=?", (gig_id,)).fetchone()['c']
         conn.execute("UPDATE gigs SET view_count=view_count+1 WHERE id=?", (gig_id,))
         conn.commit(); conn.close()
-        feat = "⭐ FEATURED\n" if g['is_featured'] else ""
+        feat = "\u2B50 FEATURED\n" if g['is_featured'] else ""
         text = (f"{feat}<b>{g['title']}</b>\n\n"
-                f"📝 {g['description']}\n\n"
-                f"💰 Budget: {g['budget']:.0f} VC\n"
-                f"📂 Category: {g['category']}\n"
-                f"⏰ Deadline: {g['deadline_hours']} hours\n"
-                f"👤 Posted by: {g['first_name']} (⭐{g['reputation_score']:.1f})\n"
-                f"📊 Applications: {apps}/{g['max_applicants']}\n"
-                f"👁️ Views: {g['view_count']}\n"
-                f"📅 Posted: {g['created_at'][:16]}\n"
+                f"\U0001F4DD {g['description']}\n\n"
+                f"\U0001F4B0 Budget: {g['budget']:.0f} VC\n"
+                f"\U0001F4C2 Category: {g['category']}\n"
+                f"\u23F0 Deadline: {g['deadline_hours']} hours\n"
+                f"\U0001F464 Posted by: {g['first_name']} (\u2B50{g['reputation_score']:.1f})\n"
+                f"\U0001F4CA Applications: {apps}/{g['max_applicants']}\n"
+                f"\U0001F441\uFE0F Views: {g['view_count']}\n"
+                f"\U0001F4C5 Posted: {g['created_at'][:16]}\n"
                 f"Status: {g['status'].upper()}")
         kb = []
         uid = query.from_user.id
         if g['status'] == 'open' and uid != g['poster_id']:
-            kb.append([InlineKeyboardButton("📝 Apply", callback_data=f"apply_gig_{gig_id}")])
+            kb.append([InlineKeyboardButton("\U0001F4DD Apply", callback_data=f"apply_gig_{gig_id}")])
         if uid == g['poster_id'] and g['status'] == 'open':
-            kb.append([InlineKeyboardButton("👥 View Applications", callback_data=f"gig_apps_{gig_id}")])
-            kb.append([InlineKeyboardButton("❌ Cancel Gig", callback_data=f"cancel_gig_{gig_id}")])
+            kb.append([InlineKeyboardButton("\U0001F465 View Applications", callback_data=f"gig_apps_{gig_id}")])
+            kb.append([InlineKeyboardButton("\u274C Cancel Gig", callback_data=f"cancel_gig_{gig_id}")])
         if uid == g['claimed_by'] and g['status'] == 'assigned':
-            kb.append([InlineKeyboardButton("📦 Deliver Work", callback_data=f"deliver_gig_{gig_id}")])
+            kb.append([InlineKeyboardButton("\U0001F4E6 Deliver Work", callback_data=f"deliver_gig_{gig_id}")])
         if uid == g['poster_id'] and g['status'] == 'delivered':
-            kb.append([InlineKeyboardButton("✅ Approve", callback_data=f"approve_gig_{gig_id}"),
-                        InlineKeyboardButton("🔄 Revision", callback_data=f"revision_gig_{gig_id}")])
-            kb.append([InlineKeyboardButton("⚠️ Dispute", callback_data=f"dispute_gig_{gig_id}")])
+            kb.append([InlineKeyboardButton("\u2705 Approve", callback_data=f"approve_gig_{gig_id}"),
+                        InlineKeyboardButton("\U0001F504 Revision", callback_data=f"revision_gig_{gig_id}")])
+            kb.append([InlineKeyboardButton("\u26A0\uFE0F Dispute", callback_data=f"dispute_gig_{gig_id}")])
         kb.append([back_btn("browse_gigs_all_0")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
@@ -1505,11 +1506,11 @@ async def post_gig_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         conn.close()
         max_gigs = int(get_setting('max_active_gigs_premium' if is_premium(u) else 'max_active_gigs_free', '3'))
         if active >= max_gigs:
-            await query.edit_message_text(f"❌ Max {max_gigs} active gigs reached.",
+            await query.edit_message_text(f"\u274C Max {max_gigs} active gigs reached.",
                                            reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
             return
         user_states[query.from_user.id] = {'state': 'gig_title'}
-        await query.edit_message_text("📝 <b>Post a New Gig</b>\n\nSend the gig title:",
+        await query.edit_message_text("\U0001F4DD <b>Post a New Gig</b>\n\nSend the gig title:",
                                        parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
     except BadRequest: pass
 
@@ -1529,10 +1530,10 @@ async def apply_gig_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         apps = conn.execute("SELECT COUNT(*) as c FROM gig_applications WHERE gig_id=?", (gig_id,)).fetchone()['c']
         conn.close()
         if apps >= g['max_applicants']:
-            await query.edit_message_text("❌ Max applicants reached.", reply_markup=InlineKeyboardMarkup([[back_btn(f"view_gig_{gig_id}")]]))
+            await query.edit_message_text("\u274C Max applicants reached.", reply_markup=InlineKeyboardMarkup([[back_btn(f"view_gig_{gig_id}")]]))
             return
         user_states[query.from_user.id] = {'state': 'gig_apply_text', 'gig_id': gig_id}
-        await query.edit_message_text("📝 Send your proposal/pitch for this gig:",
+        await query.edit_message_text("\U0001F4DD Send your proposal/pitch for this gig:",
                                        reply_markup=InlineKeyboardMarkup([[back_btn(f"view_gig_{gig_id}")]]))
     except BadRequest: pass
 
@@ -1548,15 +1549,15 @@ async def gig_apps_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not apps:
             text = "No applications yet."
         else:
-            text = f"<b>👥 Applications for Gig #{gig_id}</b>\n\n"
+            text = f"<b>\U0001F465 Applications for Gig #{gig_id}</b>\n\n"
             for a in apps:
-                text += (f"👤 {a['first_name']} (@{a['username'] or 'N/A'})\n"
-                         f"⭐ Rep: {a['reputation_score']:.1f} | ✅ {a['completed_gigs']} gigs\n"
-                         f"📝 {a['proposal_text'][:100]}\n\n")
+                text += (f"\U0001F464 {a['first_name']} (@{a['username'] or 'N/A'})\n"
+                         f"\u2B50 Rep: {a['reputation_score']:.1f} | \u2705 {a['completed_gigs']} gigs\n"
+                         f"\U0001F4DD {a['proposal_text'][:100]}\n\n")
         kb = []
         for a in apps:
-            kb.append([InlineKeyboardButton(f"✅ Accept {a['first_name']}", callback_data=f"accept_app_{a['id']}"),
-                        InlineKeyboardButton(f"❌ Decline", callback_data=f"decline_app_{a['id']}")])
+            kb.append([InlineKeyboardButton(f"\u2705 Accept {a['first_name']}", callback_data=f"accept_app_{a['id']}"),
+                        InlineKeyboardButton(f"\u274C Decline", callback_data=f"decline_app_{a['id']}")])
         kb.append([back_btn(f"view_gig_{gig_id}")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
@@ -1578,7 +1579,7 @@ async def accept_app_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.close(); return
         # Freeze budget from poster
         if not freeze_balance(gig['poster_id'], gig['budget']):
-            await query.edit_message_text("❌ Insufficient balance for escrow.", reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
+            await query.edit_message_text("\u274C Insufficient balance for escrow.", reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
             conn.close(); return
         # Create escrow
         fee_pct = get_fee_percent(ensure_user(gig['poster_id']))
@@ -1590,8 +1591,8 @@ async def accept_app_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         conn.execute("UPDATE gig_applications SET status='rejected' WHERE gig_id=? AND id!=?", (gig['id'], app_id))
         conn.commit(); conn.close()
         await notify_user(context.bot, app['applicant_id'],
-                          f"🎉 Your application for <b>{gig['title']}</b> was accepted! Deliver within {gig['deadline_hours']}h.")
-        await query.edit_message_text(f"✅ Assigned to applicant! Escrow of {gig['budget']} VC created.",
+                          f"\U0001F389 Your application for <b>{gig['title']}</b> was accepted! Deliver within {gig['deadline_hours']}h.")
+        await query.edit_message_text(f"\u2705 Assigned to applicant! Escrow of {gig['budget']} VC created.",
                                        reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
     except BadRequest: pass
     except Exception as e: logger.error(f"accept_app error: {e}")
@@ -1671,7 +1672,7 @@ async def deliver_gig_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await safe_answer(query)
     gig_id = int(query.data.split("_")[-1])
     user_states[query.from_user.id] = {'state': 'deliver_gig', 'gig_id': gig_id}
-    await query.edit_message_text("📦 Send your delivery message (text or file):",
+    await query.edit_message_text("\U0001F4E6 Send your delivery message (text or file):",
                                    reply_markup=InlineKeyboardMarkup([[back_btn(f"view_gig_{gig_id}")]]))
 
 @maintenance_check
@@ -1706,13 +1707,13 @@ async def approve_gig_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 if ref_bonus > 0:
                     add_balance(ref_user['referred_by'], ref_bonus, 'referral_bonus', f'Referral commission from gig #{gig_id}')
             await notify_user(context.bot, gig['claimed_by'],
-                              f"💰 Gig <b>{gig['title']}</b> approved! You received {net:.1f} VC")
+                              f"\U0001F4B0 Gig <b>{gig['title']}</b> approved! You received {net:.1f} VC")
             # Ask both to rate
             user_states[query.from_user.id] = {'state': 'rate_worker', 'gig_id': gig_id}
-            await query.edit_message_text(f"✅ Gig completed! Worker received {net:.1f} VC (fee: {fee:.1f})\n\nRate the worker (1-5):",
+            await query.edit_message_text(f"\u2705 Gig completed! Worker received {net:.1f} VC (fee: {fee:.1f})\n\nRate the worker (1-5):",
                                            reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
         else:
-            await query.edit_message_text("❌ Error releasing escrow.", reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
+            await query.edit_message_text("\u274C Error releasing escrow.", reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
         conn.close()
     except BadRequest: pass
     except Exception as e: logger.error(f"approve_gig error: {e}")
@@ -1729,9 +1730,9 @@ async def revision_gig_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.execute("UPDATE gigs SET status='revision' WHERE id=?", (gig_id,))
             conn.commit()
             await notify_user(context.bot, gig['claimed_by'],
-                              f"🔄 Revision requested for <b>{gig['title']}</b>. Please re-deliver.")
+                              f"\U0001F504 Revision requested for <b>{gig['title']}</b>. Please re-deliver.")
         conn.close()
-        await query.edit_message_text("🔄 Revision requested.", reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
+        await query.edit_message_text("\U0001F504 Revision requested.", reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
     except BadRequest: pass
 
 @maintenance_check
@@ -1740,7 +1741,7 @@ async def dispute_gig_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await safe_answer(query)
     gig_id = int(query.data.split("_")[-1])
     user_states[query.from_user.id] = {'state': 'dispute_reason', 'gig_id': gig_id}
-    await query.edit_message_text("⚠️ Describe the reason for your dispute:",
+    await query.edit_message_text("\u26A0\uFE0F Describe the reason for your dispute:",
                                    reply_markup=InlineKeyboardMarkup([[back_btn(f"view_gig_{gig_id}")]]))
 
 @maintenance_check
@@ -1755,7 +1756,7 @@ async def cancel_gig_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.execute("UPDATE gigs SET status='cancelled' WHERE id=?", (gig_id,))
             conn.commit()
         conn.close()
-        await query.edit_message_text("❌ Gig cancelled.", reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
+        await query.edit_message_text("\u274C Gig cancelled.", reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
     except BadRequest: pass
 
 @maintenance_check
@@ -1769,17 +1770,17 @@ async def my_gigs_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
                              (query.from_user.id, page*8)).fetchall()
         total = conn.execute("SELECT COUNT(*) as c FROM gigs WHERE poster_id=?", (query.from_user.id,)).fetchone()['c']
         conn.close()
-        text = "<b>📋 My Posted Gigs</b>\n\n"
+        text = "<b>\U0001F4CB My Posted Gigs</b>\n\n"
         if not gigs:
             text += "No gigs posted yet."
         for g in gigs:
-            text += f"• <b>{g['title']}</b> — {g['status'].upper()} ({g['budget']:.0f} VC)\n"
+            text += f"\u2022 <b>{g['title']}</b> \u2014 {g['status'].upper()} ({g['budget']:.0f} VC)\n"
         kb = []
         for g in gigs:
             kb.append([InlineKeyboardButton(f"{g['title'][:30]}", callback_data=f"view_gig_{g['id']}")])
         nav = []
-        if page > 0: nav.append(InlineKeyboardButton("◀️ Prev", callback_data=f"my_gigs_{page-1}"))
-        if (page+1)*8 < total: nav.append(InlineKeyboardButton("▶️ Next", callback_data=f"my_gigs_{page+1}"))
+        if page > 0: nav.append(InlineKeyboardButton("\u25C0\uFE0F Prev", callback_data=f"my_gigs_{page-1}"))
+        if (page+1)*8 < total: nav.append(InlineKeyboardButton("\u25B6\uFE0F Next", callback_data=f"my_gigs_{page+1}"))
         if nav: kb.append(nav)
         kb.append([back_btn("gigs_menu")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -1796,17 +1797,17 @@ async def my_work_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
                              (query.from_user.id, page*8)).fetchall()
         total = conn.execute("SELECT COUNT(*) as c FROM gigs WHERE claimed_by=?", (query.from_user.id,)).fetchone()['c']
         conn.close()
-        text = "<b>🔨 My Work</b>\n\n"
+        text = "<b>\U0001F528 My Work</b>\n\n"
         if not gigs:
             text += "No work yet."
         for g in gigs:
-            text += f"• <b>{g['title']}</b> — {g['status'].upper()} ({g['budget']:.0f} VC)\n"
+            text += f"\u2022 <b>{g['title']}</b> \u2014 {g['status'].upper()} ({g['budget']:.0f} VC)\n"
         kb = []
         for g in gigs:
             kb.append([InlineKeyboardButton(f"{g['title'][:30]}", callback_data=f"view_gig_{g['id']}")])
         nav = []
-        if page > 0: nav.append(InlineKeyboardButton("◀️ Prev", callback_data=f"my_work_{page-1}"))
-        if (page+1)*8 < total: nav.append(InlineKeyboardButton("▶️ Next", callback_data=f"my_work_{page+1}"))
+        if page > 0: nav.append(InlineKeyboardButton("\u25C0\uFE0F Prev", callback_data=f"my_work_{page-1}"))
+        if (page+1)*8 < total: nav.append(InlineKeyboardButton("\u25B6\uFE0F Next", callback_data=f"my_work_{page+1}"))
         if nav: kb.append(nav)
         kb.append([back_btn("gigs_menu")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -1823,15 +1824,15 @@ async def store_menu_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await safe_answer(query)
     try:
         kb = [
-            [InlineKeyboardButton("🔍 Browse Products", callback_data="browse_products_all_0"),
-             InlineKeyboardButton("📦 Sell Product", callback_data="sell_product")],
-            [InlineKeyboardButton("🔍 Search", callback_data="search_products"),
-             InlineKeyboardButton("📂 Categories", callback_data="product_categories")],
-            [InlineKeyboardButton("🛒 My Purchases", callback_data="my_purchases_0"),
-             InlineKeyboardButton("🏪 My Store", callback_data="my_products_0")],
+            [InlineKeyboardButton("\U0001F50D Browse Products", callback_data="browse_products_all_0"),
+             InlineKeyboardButton("\U0001F4E6 Sell Product", callback_data="sell_product")],
+            [InlineKeyboardButton("\U0001F50D Search", callback_data="search_products"),
+             InlineKeyboardButton("\U0001F4C2 Categories", callback_data="product_categories")],
+            [InlineKeyboardButton("\U0001F6D2 My Purchases", callback_data="my_purchases_0"),
+             InlineKeyboardButton("\U0001F3EA My Store", callback_data="my_products_0")],
             [back_btn()]
         ]
-        await query.edit_message_text("<b>🛍️ Digital Store</b>\n\nBuy and sell digital products!",
+        await query.edit_message_text("<b>\U0001F6CD\uFE0F Digital Store</b>\n\nBuy and sell digital products!",
                                        parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
 
@@ -1851,7 +1852,7 @@ async def product_categories_cb(update: Update, context: ContextTypes.DEFAULT_TY
             if len(row) == 2: kb.append(row); row = []
         if row: kb.append(row)
         kb.append([back_btn("store_menu")])
-        await query.edit_message_text("<b>📂 Product Categories</b>", parse_mode=ParseMode.HTML,
+        await query.edit_message_text("<b>\U0001F4C2 Product Categories</b>", parse_mode=ParseMode.HTML,
                                        reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
 
@@ -1870,16 +1871,16 @@ async def browse_products_cb(update: Update, context: ContextTypes.DEFAULT_TYPE)
             products = conn.execute("SELECT p.*, u.first_name, u.reputation_score FROM products p JOIN users u ON p.seller_id=u.user_id WHERE p.is_active=1 AND p.is_approved=1 AND p.category=? ORDER BY p.created_at DESC LIMIT 8 OFFSET ?", (category, page*8)).fetchall()
             total = conn.execute("SELECT COUNT(*) as c FROM products WHERE is_active=1 AND is_approved=1 AND category=?", (category,)).fetchone()['c']
         conn.close()
-        text = f"<b>🛍️ Products</b> ({category if category!='all' else 'All'})\n\n"
+        text = f"<b>\U0001F6CD\uFE0F Products</b> ({category if category!='all' else 'All'})\n\n"
         if not products:
             text += "No products found."
         for p in products:
-            stars = f"⭐{p['avg_rating']:.1f}" if p['total_ratings'] > 0 else "No ratings"
-            text += f"• <b>{p['title']}</b> — {p['price']:.0f} VC\n  {stars} | {p['total_sales']} sold | by {p['first_name']}\n\n"
+            stars = f"\u2B50{p['avg_rating']:.1f}" if p['total_ratings'] > 0 else "No ratings"
+            text += f"\u2022 <b>{p['title']}</b> \u2014 {p['price']:.0f} VC\n  {stars} | {p['total_sales']} sold | by {p['first_name']}\n\n"
         kb = [[InlineKeyboardButton(f"{p['title'][:30]}", callback_data=f"view_product_{p['id']}")] for p in products]
         nav = []
-        if page > 0: nav.append(InlineKeyboardButton("◀️ Prev", callback_data=f"browse_products_{category}_{page-1}"))
-        if (page+1)*8 < total: nav.append(InlineKeyboardButton("▶️ Next", callback_data=f"browse_products_{category}_{page+1}"))
+        if page > 0: nav.append(InlineKeyboardButton("\u25C0\uFE0F Prev", callback_data=f"browse_products_{category}_{page-1}"))
+        if (page+1)*8 < total: nav.append(InlineKeyboardButton("\u25B6\uFE0F Next", callback_data=f"browse_products_{category}_{page+1}"))
         if nav: kb.append(nav)
         kb.append([back_btn("store_menu")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -1898,22 +1899,22 @@ async def view_product_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not p:
             await query.edit_message_text("Product not found.", reply_markup=InlineKeyboardMarkup([[back_btn("store_menu")]]))
             return
-        stars = f"⭐ {p['avg_rating']:.1f} ({p['total_ratings']} ratings)" if p['total_ratings'] > 0 else "No ratings yet"
+        stars = f"\u2B50 {p['avg_rating']:.1f} ({p['total_ratings']} ratings)" if p['total_ratings'] > 0 else "No ratings yet"
         text = (f"<b>{p['title']}</b>\n\n"
-                f"📝 {p['description']}\n\n"
-                f"💰 Price: {p['price']:.0f} VC\n"
-                f"📂 {p['category']}\n"
+                f"\U0001F4DD {p['description']}\n\n"
+                f"\U0001F4B0 Price: {p['price']:.0f} VC\n"
+                f"\U0001F4C2 {p['category']}\n"
                 f"{stars}\n"
-                f"📊 {p['total_sales']} sold\n"
-                f"👤 {p['first_name']} (⭐{p['reputation_score']:.1f})\n")
+                f"\U0001F4CA {p['total_sales']} sold\n"
+                f"\U0001F464 {p['first_name']} (\u2B50{p['reputation_score']:.1f})\n")
         if p['preview_text']:
-            text += f"\n📋 Preview: {p['preview_text']}\n"
+            text += f"\n\U0001F4CB Preview: {p['preview_text']}\n"
         kb = []
         if query.from_user.id != p['seller_id']:
-            kb.append([InlineKeyboardButton(f"🛒 Buy ({p['price']:.0f} VC)", callback_data=f"buy_product_{prod_id}")])
+            kb.append([InlineKeyboardButton(f"\U0001F6D2 Buy ({p['price']:.0f} VC)", callback_data=f"buy_product_{prod_id}")])
         if query.from_user.id == p['seller_id']:
-            kb.append([InlineKeyboardButton("⚙️ Edit", callback_data=f"edit_product_{prod_id}"),
-                        InlineKeyboardButton("🗑️ Delete", callback_data=f"delete_product_{prod_id}")])
+            kb.append([InlineKeyboardButton("\u2699\uFE0F Edit", callback_data=f"edit_product_{prod_id}"),
+                        InlineKeyboardButton("\U0001F5D1\uFE0F Delete", callback_data=f"delete_product_{prod_id}")])
         kb.append([back_btn("browse_products_all_0")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
@@ -1936,7 +1937,7 @@ async def buy_product_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         fee = round(p['price'] * fee_pct / 100, 2)
         net = round(p['price'] - fee, 2)
         if not deduct_balance(buyer_id, p['price'], 'product_purchase', f"Bought: {p['title']}"):
-            await query.edit_message_text(f"❌ Insufficient balance. Need {p['price']:.0f} VC",
+            await query.edit_message_text(f"\u274C Insufficient balance. Need {p['price']:.0f} VC",
                                            reply_markup=InlineKeyboardMarkup([[back_btn(f"view_product_{prod_id}")]]))
             conn.close(); return
         add_balance(p['seller_id'], net, 'product_sale', f"Sold: {p['title']} (fee: {fee})")
@@ -1949,19 +1950,19 @@ async def buy_product_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         conn.commit(); conn.close()
         # Deliver file
         try:
-            await context.bot.send_document(buyer_id, p['file_id'], caption=f"📦 <b>{p['title']}</b>\n\nThank you for your purchase!",
+            await context.bot.send_document(buyer_id, p['file_id'], caption=f"\U0001F4E6 <b>{p['title']}</b>\n\nThank you for your purchase!",
                                              parse_mode=ParseMode.HTML)
         except:
-            await context.bot.send_message(buyer_id, f"📦 Your purchase: {p['title']}\nFile ID: {p['file_id']}")
+            await context.bot.send_message(buyer_id, f"\U0001F4E6 Your purchase: {p['title']}\nFile ID: {p['file_id']}")
         # Referral
         if buyer['referred_by'] and get_setting('referral_enabled','1')=='1':
             ref_pct = float(get_setting('referral_percent_on_transactions','5'))
             ref_bonus = round(fee * ref_pct / 100, 2)
             if ref_bonus > 0:
                 add_balance(buyer['referred_by'], ref_bonus, 'referral_bonus', f'Referral commission from product sale')
-        await notify_user(context.bot, p['seller_id'], f"💰 Someone bought <b>{p['title']}</b>! +{net:.1f} VC")
+        await notify_user(context.bot, p['seller_id'], f"\U0001F4B0 Someone bought <b>{p['title']}</b>! +{net:.1f} VC")
         user_states[buyer_id] = {'state': 'rate_product', 'product_id': prod_id}
-        await query.edit_message_text(f"✅ <b>Purchase Complete!</b>\n\nFile delivered! Rate this product (1-5):",
+        await query.edit_message_text(f"\u2705 <b>Purchase Complete!</b>\n\nFile delivered! Rate this product (1-5):",
                                        parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[back_btn("store_menu")]]))
         await check_badges(buyer_id, context.bot)
         await check_badges(p['seller_id'], context.bot)
@@ -1980,11 +1981,11 @@ async def sell_product_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         conn.close()
         max_prods = int(get_setting('max_active_products_premium' if is_premium(u) else 'max_active_products_free', '5'))
         if active >= max_prods:
-            await query.edit_message_text(f"❌ Max {max_prods} active products.",
+            await query.edit_message_text(f"\u274C Max {max_prods} active products.",
                                            reply_markup=InlineKeyboardMarkup([[back_btn("store_menu")]]))
             return
         user_states[query.from_user.id] = {'state': 'product_file'}
-        await query.edit_message_text("📦 <b>Sell a Digital Product</b>\n\nFirst, send the file you want to sell:",
+        await query.edit_message_text("\U0001F4E6 <b>Sell a Digital Product</b>\n\nFirst, send the file you want to sell:",
                                        parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[back_btn("store_menu")]]))
     except BadRequest: pass
 
@@ -1999,15 +2000,15 @@ async def my_products_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                  (query.from_user.id, page*8)).fetchall()
         total = conn.execute("SELECT COUNT(*) as c FROM products WHERE seller_id=?", (query.from_user.id,)).fetchone()['c']
         conn.close()
-        text = "<b>🏪 My Products</b>\n\n"
+        text = "<b>\U0001F3EA My Products</b>\n\n"
         if not products: text += "No products yet."
         for p in products:
-            status = "✅" if p['is_active'] else "❌"
-            text += f"{status} <b>{p['title']}</b> — {p['price']:.0f} VC ({p['total_sales']} sold)\n"
+            status = "\u2705" if p['is_active'] else "\u274C"
+            text += f"{status} <b>{p['title']}</b> \u2014 {p['price']:.0f} VC ({p['total_sales']} sold)\n"
         kb = [[InlineKeyboardButton(p['title'][:30], callback_data=f"view_product_{p['id']}")] for p in products]
         nav = []
-        if page > 0: nav.append(InlineKeyboardButton("◀️ Prev", callback_data=f"my_products_{page-1}"))
-        if (page+1)*8 < total: nav.append(InlineKeyboardButton("▶️ Next", callback_data=f"my_products_{page+1}"))
+        if page > 0: nav.append(InlineKeyboardButton("\u25C0\uFE0F Prev", callback_data=f"my_products_{page-1}"))
+        if (page+1)*8 < total: nav.append(InlineKeyboardButton("\u25B6\uFE0F Next", callback_data=f"my_products_{page+1}"))
         if nav: kb.append(nav)
         kb.append([back_btn("store_menu")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -2024,14 +2025,14 @@ async def my_purchases_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                   (query.from_user.id, page*8)).fetchall()
         total = conn.execute("SELECT COUNT(*) as c FROM product_purchases WHERE buyer_id=?", (query.from_user.id,)).fetchone()['c']
         conn.close()
-        text = "<b>📦 My Purchases</b>\n\n"
+        text = "<b>\U0001F4E6 My Purchases</b>\n\n"
         if not purchases: text += "No purchases yet."
         for pp in purchases:
-            text += f"• <b>{pp['title']}</b> — {pp['price']:.0f} VC ({pp['created_at'][:10]})\n"
+            text += f"\u2022 <b>{pp['title']}</b> \u2014 {pp['price']:.0f} VC ({pp['created_at'][:10]})\n"
         kb = []
         nav = []
-        if page > 0: nav.append(InlineKeyboardButton("◀️ Prev", callback_data=f"my_purchases_{page-1}"))
-        if (page+1)*8 < total: nav.append(InlineKeyboardButton("▶️ Next", callback_data=f"my_purchases_{page+1}"))
+        if page > 0: nav.append(InlineKeyboardButton("\u25C0\uFE0F Prev", callback_data=f"my_purchases_{page-1}"))
+        if (page+1)*8 < total: nav.append(InlineKeyboardButton("\u25B6\uFE0F Next", callback_data=f"my_purchases_{page+1}"))
         if nav: kb.append(nav)
         kb.append([back_btn("store_menu")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -2046,7 +2047,7 @@ async def delete_product_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         conn = get_db()
         conn.execute("UPDATE products SET is_active=0 WHERE id=? AND seller_id=?", (prod_id, query.from_user.id))
         conn.commit(); conn.close()
-        await query.edit_message_text("🗑️ Product deleted.", reply_markup=InlineKeyboardMarkup([[back_btn("store_menu")]]))
+        await query.edit_message_text("\U0001F5D1\uFE0F Product deleted.", reply_markup=InlineKeyboardMarkup([[back_btn("store_menu")]]))
     except BadRequest: pass
 
 # ============================================================
@@ -2062,12 +2063,12 @@ async def leaderboard_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         top_rep = conn.execute("SELECT first_name, reputation_score, completed_gigs FROM users WHERE is_banned=0 ORDER BY reputation_score DESC LIMIT 10").fetchall()
         top_earn = conn.execute("SELECT first_name, total_earned FROM users WHERE is_banned=0 ORDER BY total_earned DESC LIMIT 10").fetchall()
         conn.close()
-        text = "<b>📊 Leaderboard</b>\n\n<b>⭐ Top Reputation:</b>\n"
+        text = "<b>\U0001F4CA Leaderboard</b>\n\n<b>\u2B50 Top Reputation:</b>\n"
         for i, u in enumerate(top_rep):
-            text += f"{i+1}. {u['first_name']} — ⭐{u['reputation_score']:.1f} ({u['completed_gigs']} gigs)\n"
-        text += "\n<b>💰 Top Earners:</b>\n"
+            text += f"{i+1}. {u['first_name']} \u2014 \u2B50{u['reputation_score']:.1f} ({u['completed_gigs']} gigs)\n"
+        text += "\n<b>\U0001F4B0 Top Earners:</b>\n"
         for i, u in enumerate(top_earn):
-            text += f"{i+1}. {u['first_name']} — {u['total_earned']:.0f} VC\n"
+            text += f"{i+1}. {u['first_name']} \u2014 {u['total_earned']:.0f} VC\n"
         await query.edit_message_text(text, parse_mode=ParseMode.HTML,
                                        reply_markup=InlineKeyboardMarkup([[back_btn()]]))
     except BadRequest: pass
@@ -2088,10 +2089,10 @@ async def notifications_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                (query.from_user.id,)).fetchone()['c']
         conn.execute("UPDATE notifications SET is_read=1 WHERE user_id=?", (query.from_user.id,))
         conn.commit(); conn.close()
-        text = f"<b>🔔 Notifications</b> ({unread} unread)\n\n"
+        text = f"<b>\U0001F514 Notifications</b> ({unread} unread)\n\n"
         if not notifs: text += "No notifications."
         for n in notifs:
-            icon = "🆕" if not n['is_read'] else "📌"
+            icon = "\U0001F195" if not n['is_read'] else "\U0001F4CC"
             text += f"{icon} {n['message'][:100]}\n{n['created_at'][:16]}\n\n"
         await query.edit_message_text(text, parse_mode=ParseMode.HTML,
                                        reply_markup=InlineKeyboardMarkup([[back_btn()]]))
@@ -2106,7 +2107,7 @@ async def search_gigs_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await safe_answer(query)
     user_states[query.from_user.id] = {'state': 'search_gigs'}
-    await query.edit_message_text("🔍 Send a keyword to search gigs:",
+    await query.edit_message_text("\U0001F50D Send a keyword to search gigs:",
                                    reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
 
 @maintenance_check
@@ -2114,7 +2115,7 @@ async def search_products_cb(update: Update, context: ContextTypes.DEFAULT_TYPE)
     query = update.callback_query
     await safe_answer(query)
     user_states[query.from_user.id] = {'state': 'search_products'}
-    await query.edit_message_text("🔍 Send a keyword to search products:",
+    await query.edit_message_text("\U0001F50D Send a keyword to search products:",
                                    reply_markup=InlineKeyboardMarkup([[back_btn("store_menu")]]))
 
 
@@ -2138,26 +2139,26 @@ async def admin_panel_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         total_fees = get_setting('platform_total_fees', '0')
         total_products = conn.execute("SELECT COUNT(*) as c FROM products WHERE is_active=1").fetchone()['c']
         conn.close()
-        text = (f"🔧 <b>Admin Panel</b>\n\n"
-                f"👥 Users: {total_users}\n"
-                f"💼 Gigs: {total_gigs} ({open_gigs} open)\n"
-                f"🛍️ Products: {total_products}\n"
-                f"🏦 Fees Collected: {total_fees} VC\n"
-                f"📥 Pending Deposits: {pending_deps}\n"
-                f"📤 Pending Withdrawals: {pending_wds}\n"
-                f"⚖️ Open Disputes: {open_disputes}\n")
+        text = (f"\U0001F527 <b>Admin Panel</b>\n\n"
+                f"\U0001F465 Users: {total_users}\n"
+                f"\U0001F4BC Gigs: {total_gigs} ({open_gigs} open)\n"
+                f"\U0001F6CD\uFE0F Products: {total_products}\n"
+                f"\U0001F3E6 Fees Collected: {total_fees} VC\n"
+                f"\U0001F4E5 Pending Deposits: {pending_deps}\n"
+                f"\U0001F4E4 Pending Withdrawals: {pending_wds}\n"
+                f"\u2696\uFE0F Open Disputes: {open_disputes}\n")
         kb = [
-            [InlineKeyboardButton("📱 Set UPI ID", callback_data="admin_set_upi"),
-             InlineKeyboardButton("💰 Add/Deduct Balance", callback_data="admin_balance")],
-            [InlineKeyboardButton("📥 Deposits", callback_data="admin_deposits_0"),
-             InlineKeyboardButton("📤 Withdrawals", callback_data="admin_withdrawals_0")],
-            [InlineKeyboardButton("⚠️ Disputes", callback_data="admin_disputes_0"),
-             InlineKeyboardButton("🚨 Risk Alerts", callback_data="admin_risks")],
-            [InlineKeyboardButton("👥 Users", callback_data="admin_users_0"),
-             InlineKeyboardButton("⚙️ Settings", callback_data="admin_settings")],
-            [InlineKeyboardButton("📢 Broadcast", callback_data="admin_broadcast"),
-             InlineKeyboardButton("🔍 Check User", callback_data="admin_check_user")],
-            [InlineKeyboardButton("📊 Analytics", callback_data="admin_analytics")],
+            [InlineKeyboardButton("\U0001F4F1 Set UPI ID", callback_data="admin_set_upi"),
+             InlineKeyboardButton("\U0001F4B0 Add/Deduct Balance", callback_data="admin_balance")],
+            [InlineKeyboardButton("\U0001F4E5 Deposits", callback_data="admin_deposits_0"),
+             InlineKeyboardButton("\U0001F4E4 Withdrawals", callback_data="admin_withdrawals_0")],
+            [InlineKeyboardButton("\u26A0\uFE0F Disputes", callback_data="admin_disputes_0"),
+             InlineKeyboardButton("\U0001F6A8 Risk Alerts", callback_data="admin_risks")],
+            [InlineKeyboardButton("\U0001F465 Users", callback_data="admin_users_0"),
+             InlineKeyboardButton("\u2699\uFE0F Settings", callback_data="admin_settings")],
+            [InlineKeyboardButton("\U0001F4E2 Broadcast", callback_data="admin_broadcast"),
+             InlineKeyboardButton("\U0001F50D Check User", callback_data="admin_check_user")],
+            [InlineKeyboardButton("\U0001F4CA Analytics", callback_data="admin_analytics")],
             [back_btn()]
         ]
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -2174,19 +2175,19 @@ async def admin_deposits_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         deps = conn.execute("SELECT d.*, u.first_name, u.username FROM deposits d JOIN users u ON d.user_id=u.user_id WHERE d.status='pending' ORDER BY d.created_at DESC LIMIT 5 OFFSET ?", (page*5,)).fetchall()
         total = conn.execute("SELECT COUNT(*) as c FROM deposits WHERE status='pending'").fetchone()['c']
         conn.close()
-        text = f"<b>📥 Pending Deposits ({total})</b>\n\n"
+        text = f"<b>\U0001F4E5 Pending Deposits ({total})</b>\n\n"
         if not deps: text += "No pending deposits."
         for d in deps:
             text += (f"#{d['id']} | {d['first_name']} (@{d['username']})\n"
-                     f"₹{d['amount_inr']} → {d['vault_coins']} VC | {d['payment_method']}\n"
-                     f"📅 {d['created_at'][:16]}\n\n")
+                     f"\u20B9{d['amount_inr']} \u2192 {d['vault_coins']} VC | {d['payment_method']}\n"
+                     f"\U0001F4C5 {d['created_at'][:16]}\n\n")
         kb = []
         for d in deps:
-            kb.append([InlineKeyboardButton(f"✅ #{d['id']}", callback_data=f"approve_deposit_{d['id']}"),
-                        InlineKeyboardButton(f"❌ #{d['id']}", callback_data=f"reject_deposit_{d['id']}")])
+            kb.append([InlineKeyboardButton(f"\u2705 #{d['id']}", callback_data=f"approve_deposit_{d['id']}"),
+                        InlineKeyboardButton(f"\u274C #{d['id']}", callback_data=f"reject_deposit_{d['id']}")])
         nav = []
-        if page > 0: nav.append(InlineKeyboardButton("◀️ Prev", callback_data=f"admin_deposits_{page-1}"))
-        if (page+1)*5 < total: nav.append(InlineKeyboardButton("▶️ Next", callback_data=f"admin_deposits_{page+1}"))
+        if page > 0: nav.append(InlineKeyboardButton("\u25C0\uFE0F Prev", callback_data=f"admin_deposits_{page-1}"))
+        if (page+1)*5 < total: nav.append(InlineKeyboardButton("\u25B6\uFE0F Next", callback_data=f"admin_deposits_{page+1}"))
         if nav: kb.append(nav)
         kb.append([back_btn("admin_panel")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -2206,7 +2207,7 @@ async def approve_deposit_cb(update: Update, context: ContextTypes.DEFAULT_TYPE)
             conn.close(); return
         conn.execute("UPDATE deposits SET status='approved' WHERE id=?", (dep_id,))
         conn.commit(); conn.close()
-        add_balance(d['user_id'], d['vault_coins'], 'deposit', f"Deposit ₹{d['amount_inr']} approved", 'deposit', dep_id)
+        add_balance(d['user_id'], d['vault_coins'], 'deposit', f"Deposit \u20B9{d['amount_inr']} approved", 'deposit', dep_id)
         # Pay out pending referral bonus on first deposit
         try:
             conn2 = get_db()
@@ -2229,8 +2230,8 @@ async def approve_deposit_cb(update: Update, context: ContextTypes.DEFAULT_TYPE)
         except Exception as e:
             logger.error(f"Referral payout error: {e}")
         await notify_user(context.bot, d['user_id'],
-                          f"✅ Deposit of ₹{d['amount_inr']} approved! +{d['vault_coins']} VC")
-        await query.edit_message_text(f"✅ Deposit #{dep_id} approved. {d['vault_coins']} VC credited.",
+                          f"\u2705 Deposit of \u20B9{d['amount_inr']} approved! +{d['vault_coins']} VC")
+        await query.edit_message_text(f"\u2705 Deposit #{dep_id} approved. {d['vault_coins']} VC credited.",
                                        reply_markup=InlineKeyboardMarkup([[back_btn("admin_deposits_0")]]))
     except BadRequest: pass
 
@@ -2245,9 +2246,9 @@ async def reject_deposit_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if d:
             conn.execute("UPDATE deposits SET status='rejected' WHERE id=?", (dep_id,))
             conn.commit()
-            await notify_user(context.bot, d['user_id'], f"❌ Deposit of ₹{d['amount_inr']} was rejected.")
+            await notify_user(context.bot, d['user_id'], f"\u274C Deposit of \u20B9{d['amount_inr']} was rejected.")
         conn.close()
-        await query.edit_message_text(f"❌ Deposit #{dep_id} rejected.",
+        await query.edit_message_text(f"\u274C Deposit #{dep_id} rejected.",
                                        reply_markup=InlineKeyboardMarkup([[back_btn("admin_deposits_0")]]))
     except BadRequest: pass
 
@@ -2261,19 +2262,19 @@ async def admin_withdrawals_cb(update: Update, context: ContextTypes.DEFAULT_TYP
         wds = conn.execute("SELECT w.*, u.first_name, u.username FROM withdrawals w JOIN users u ON w.user_id=u.user_id WHERE w.status='pending' ORDER BY w.created_at DESC LIMIT 5 OFFSET ?", (page*5,)).fetchall()
         total = conn.execute("SELECT COUNT(*) as c FROM withdrawals WHERE status='pending'").fetchone()['c']
         conn.close()
-        text = f"<b>📤 Pending Withdrawals ({total})</b>\n\n"
+        text = f"<b>\U0001F4E4 Pending Withdrawals ({total})</b>\n\n"
         if not wds: text += "No pending withdrawals."
         for w in wds:
             text += (f"#{w['id']} | {w['first_name']} (@{w['username']})\n"
-                     f"{w['vault_coins']} VC → ₹{w['amount_inr']} | {w['payout_method']}\n"
-                     f"Details: {w['payout_details']}\n📅 {w['created_at'][:16]}\n\n")
+                     f"{w['vault_coins']} VC \u2192 \u20B9{w['amount_inr']} | {w['payout_method']}\n"
+                     f"Details: {w['payout_details']}\n\U0001F4C5 {w['created_at'][:16]}\n\n")
         kb = []
         for w in wds:
-            kb.append([InlineKeyboardButton(f"✅ #{w['id']}", callback_data=f"approve_withdrawal_{w['id']}"),
-                        InlineKeyboardButton(f"❌ #{w['id']}", callback_data=f"reject_withdrawal_{w['id']}")])
+            kb.append([InlineKeyboardButton(f"\u2705 #{w['id']}", callback_data=f"approve_withdrawal_{w['id']}"),
+                        InlineKeyboardButton(f"\u274C #{w['id']}", callback_data=f"reject_withdrawal_{w['id']}")])
         nav = []
-        if page > 0: nav.append(InlineKeyboardButton("◀️ Prev", callback_data=f"admin_withdrawals_{page-1}"))
-        if (page+1)*5 < total: nav.append(InlineKeyboardButton("▶️ Next", callback_data=f"admin_withdrawals_{page+1}"))
+        if page > 0: nav.append(InlineKeyboardButton("\u25C0\uFE0F Prev", callback_data=f"admin_withdrawals_{page-1}"))
+        if (page+1)*5 < total: nav.append(InlineKeyboardButton("\u25B6\uFE0F Next", callback_data=f"admin_withdrawals_{page+1}"))
         if nav: kb.append(nav)
         kb.append([back_btn("admin_panel")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -2291,9 +2292,9 @@ async def approve_withdrawal_cb(update: Update, context: ContextTypes.DEFAULT_TY
             conn.execute("UPDATE withdrawals SET status='approved', processed_at=CURRENT_TIMESTAMP WHERE id=?", (wd_id,))
             conn.commit()
             await notify_user(context.bot, w['user_id'],
-                              f"✅ Withdrawal of {w['vault_coins']} VC (₹{w['amount_inr']}) approved!")
+                              f"\u2705 Withdrawal of {w['vault_coins']} VC (\u20B9{w['amount_inr']}) approved!")
         conn.close()
-        await query.edit_message_text(f"✅ Withdrawal #{wd_id} approved.",
+        await query.edit_message_text(f"\u2705 Withdrawal #{wd_id} approved.",
                                        reply_markup=InlineKeyboardMarkup([[back_btn("admin_withdrawals_0")]]))
     except BadRequest: pass
 
@@ -2311,9 +2312,9 @@ async def reject_withdrawal_cb(update: Update, context: ContextTypes.DEFAULT_TYP
             conn.execute("UPDATE withdrawals SET status='rejected' WHERE id=?", (wd_id,))
             conn.commit()
             await notify_user(context.bot, w['user_id'],
-                              f"❌ Withdrawal rejected. {w['vault_coins']} VC refunded.")
+                              f"\u274C Withdrawal rejected. {w['vault_coins']} VC refunded.")
         conn.close()
-        await query.edit_message_text(f"❌ Withdrawal #{wd_id} rejected & refunded.",
+        await query.edit_message_text(f"\u274C Withdrawal #{wd_id} rejected & refunded.",
                                        reply_markup=InlineKeyboardMarkup([[back_btn("admin_withdrawals_0")]]))
     except BadRequest: pass
 
@@ -2327,22 +2328,22 @@ async def admin_disputes_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         disputes = conn.execute("SELECT d.*, u1.first_name as filer_name, u2.first_name as against_name FROM disputes d JOIN users u1 ON d.filed_by=u1.user_id JOIN users u2 ON d.filed_against=u2.user_id WHERE d.status='open' ORDER BY d.created_at DESC LIMIT 5 OFFSET ?", (page*5,)).fetchall()
         total = conn.execute("SELECT COUNT(*) as c FROM disputes WHERE status='open'").fetchone()['c']
         conn.close()
-        text = f"<b>⚠️ Open Disputes ({total})</b>\n\n"
+        text = f"<b>\u26A0\uFE0F Open Disputes ({total})</b>\n\n"
         if not disputes: text += "No open disputes."
         for d in disputes:
             ref = f"Gig #{d['gig_id']}" if d['gig_id'] else f"Purchase #{d['product_purchase_id']}"
             text += (f"#{d['id']} | {ref}\n"
                      f"Filed by: {d['filer_name']} vs {d['against_name']}\n"
-                     f"Reason: {d['reason'][:80]}\n📅 {d['created_at'][:16]}\n\n")
+                     f"Reason: {d['reason'][:80]}\n\U0001F4C5 {d['created_at'][:16]}\n\n")
         kb = []
         for d in disputes:
             kb.append([
-                InlineKeyboardButton(f"👤 Filer #{d['id']}", callback_data=f"resolve_dispute_filer_{d['id']}"),
-                InlineKeyboardButton(f"👤 Accused #{d['id']}", callback_data=f"resolve_dispute_accused_{d['id']}")
+                InlineKeyboardButton(f"\U0001F464 Filer #{d['id']}", callback_data=f"resolve_dispute_filer_{d['id']}"),
+                InlineKeyboardButton(f"\U0001F464 Accused #{d['id']}", callback_data=f"resolve_dispute_accused_{d['id']}")
             ])
         nav = []
-        if page > 0: nav.append(InlineKeyboardButton("◀️ Prev", callback_data=f"admin_disputes_{page-1}"))
-        if (page+1)*5 < total: nav.append(InlineKeyboardButton("▶️ Next", callback_data=f"admin_disputes_{page+1}"))
+        if page > 0: nav.append(InlineKeyboardButton("\u25C0\uFE0F Prev", callback_data=f"admin_disputes_{page-1}"))
+        if (page+1)*5 < total: nav.append(InlineKeyboardButton("\u25B6\uFE0F Next", callback_data=f"admin_disputes_{page+1}"))
         if nav: kb.append(nav)
         kb.append([back_btn("admin_panel")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -2384,9 +2385,9 @@ async def resolve_dispute_cb(update: Update, context: ContextTypes.DEFAULT_TYPE)
         conn.execute("UPDATE users SET total_disputes_lost=total_disputes_lost+1 WHERE user_id=?", (loser,))
         conn.commit(); conn.close()
         update_reputation(loser)
-        await notify_user(context.bot, winner, f"✅ Dispute #{disp_id} resolved in your favor!")
-        await notify_user(context.bot, loser, f"❌ Dispute #{disp_id} resolved against you.")
-        await query.edit_message_text(f"✅ Dispute #{disp_id} resolved for {side}.",
+        await notify_user(context.bot, winner, f"\u2705 Dispute #{disp_id} resolved in your favor!")
+        await notify_user(context.bot, loser, f"\u274C Dispute #{disp_id} resolved against you.")
+        await query.edit_message_text(f"\u2705 Dispute #{disp_id} resolved for {side}.",
                                        reply_markup=InlineKeyboardMarkup([[back_btn("admin_disputes_0")]]))
     except BadRequest: pass
     except Exception as e: logger.error(f"resolve_dispute error: {e}")
@@ -2397,11 +2398,11 @@ async def admin_risks_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.from_user.id != ADMIN_USER_ID: return
     try:
         flagged = get_flagged_users()
-        text = "<b>🚨 Risk Alerts</b>\n\n"
+        text = "<b>\U0001F6A8 Risk Alerts</b>\n\n"
         if not flagged: text += "No flagged users."
         for u in flagged[:10]:
-            text += (f"👤 {u['first_name']} (ID: {u['user_id']})\n"
-                     f"   Risk: {u['risk_score']:.0f} | VPN: {'⚠️' if u['is_vpn_detected'] else '✅'}\n"
+            text += (f"\U0001F464 {u['first_name']} (ID: {u['user_id']})\n"
+                     f"   Risk: {u['risk_score']:.0f} | VPN: {'\u26A0\uFE0F' if u['is_vpn_detected'] else '\u2705'}\n"
                      f"   Disputes: {u['total_disputes_lost']}/{u['total_disputes_filed']}\n\n")
         kb = [[back_btn("admin_panel")]]
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -2417,17 +2418,17 @@ async def admin_users_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         users = conn.execute("SELECT * FROM users ORDER BY last_active DESC LIMIT 10 OFFSET ?", (page*10,)).fetchall()
         total = conn.execute("SELECT COUNT(*) as c FROM users").fetchone()['c']
         conn.close()
-        text = f"<b>👥 Users ({total})</b>\n\n"
+        text = f"<b>\U0001F465 Users ({total})</b>\n\n"
         for u in users:
-            ban = "🚫" if u['is_banned'] else ""
-            prem = "⭐" if u['is_premium'] else ""
-            text += f"{ban}{prem} {u['first_name']} (@{u['username'] or 'N/A'}) — {u['balance']:.0f} VC\n"
+            ban = "\U0001F6AB" if u['is_banned'] else ""
+            prem = "\u2B50" if u['is_premium'] else ""
+            text += f"{ban}{prem} {u['first_name']} (@{u['username'] or 'N/A'}) \u2014 {u['balance']:.0f} VC\n"
         kb = []
         for u in users:
             kb.append([InlineKeyboardButton(f"{u['first_name']} ({u['user_id']})", callback_data=f"admin_user_{u['user_id']}")])
         nav = []
-        if page > 0: nav.append(InlineKeyboardButton("◀️ Prev", callback_data=f"admin_users_{page-1}"))
-        if (page+1)*10 < total: nav.append(InlineKeyboardButton("▶️ Next", callback_data=f"admin_users_{page+1}"))
+        if page > 0: nav.append(InlineKeyboardButton("\u25C0\uFE0F Prev", callback_data=f"admin_users_{page-1}"))
+        if (page+1)*10 < total: nav.append(InlineKeyboardButton("\u25B6\uFE0F Next", callback_data=f"admin_users_{page+1}"))
         if nav: kb.append(nav)
         kb.append([back_btn("admin_panel")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -2445,7 +2446,7 @@ async def admin_user_detail_cb(update: Update, context: ContextTypes.DEFAULT_TYP
         level, xp = calculate_level(u)
         risk = calculate_risk_score(uid)
         circular = detect_circular_transactions(uid)
-        text = (f"<b>👤 User Detail</b>\n\n"
+        text = (f"<b>\U0001F464 User Detail</b>\n\n"
                 f"ID: <code>{uid}</code>\n"
                 f"Name: {u['first_name']} (@{u['username']})\n"
                 f"Balance: {u['balance']:.1f} VC (Frozen: {u['frozen_balance']:.1f})\n"
@@ -2454,17 +2455,17 @@ async def admin_user_detail_cb(update: Update, context: ContextTypes.DEFAULT_TYP
                 f"Rep: {u['reputation_score']:.1f} | Gigs: {u['completed_gigs']}\n"
                 f"Premium: {'Yes' if u['is_premium'] else 'No'}\n"
                 f"Banned: {'Yes' if u['is_banned'] else 'No'}\n"
-                f"🚨 Risk Score: {risk}\n"
+                f"\U0001F6A8 Risk Score: {risk}\n"
                 f"VPN: {'Detected' if u['is_vpn_detected'] else 'Clean'}\n"
                 f"IP: {u['last_ip'] or 'Unknown'}\n"
                 f"Joined: {u['joined_at'][:10]}\n")
         if circular:
-            text += f"⚠️ Circular transactions with: {circular}\n"
+            text += f"\u26A0\uFE0F Circular transactions with: {circular}\n"
         kb = [
-            [InlineKeyboardButton("🚫 Ban" if not u['is_banned'] else "✅ Unban", callback_data=f"admin_ban_{uid}"),
-             InlineKeyboardButton("✅ Verify", callback_data=f"admin_verify_{uid}")],
-            [InlineKeyboardButton("➕ Add Balance", callback_data=f"admin_add_bal_{uid}"),
-             InlineKeyboardButton("💸 Deduct", callback_data=f"admin_deduct_bal_{uid}")],
+            [InlineKeyboardButton("\U0001F6AB Ban" if not u['is_banned'] else "\u2705 Unban", callback_data=f"admin_ban_{uid}"),
+             InlineKeyboardButton("\u2705 Verify", callback_data=f"admin_verify_{uid}")],
+            [InlineKeyboardButton("\u2795 Add Balance", callback_data=f"admin_add_bal_{uid}"),
+             InlineKeyboardButton("\U0001F4B8 Deduct", callback_data=f"admin_deduct_bal_{uid}")],
             [back_btn("admin_users_0")]
         ]
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -2498,7 +2499,7 @@ async def admin_verify_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         conn = get_db()
         conn.execute("UPDATE users SET is_seller_verified=1 WHERE user_id=?", (uid,))
         conn.commit(); conn.close()
-        await notify_user(context.bot, uid, "✅ Your account has been verified by admin!")
+        await notify_user(context.bot, uid, "\u2705 Your account has been verified by admin!")
         await query.edit_message_text(f"User {uid} verified.",
                                        reply_markup=InlineKeyboardMarkup([[back_btn(f"admin_user_{uid}")]]))
     except BadRequest: pass
@@ -2509,7 +2510,7 @@ async def admin_add_bal_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.from_user.id != ADMIN_USER_ID: return
     uid = int(query.data.split("_")[-1])
     user_states[ADMIN_USER_ID] = {'state': 'admin_add_balance', 'target_uid': uid}
-    await query.edit_message_text(f"➕ Type the amount to add to user {uid} 👇",
+    await query.edit_message_text(f"\u2795 Type the amount to add to user {uid} \U0001F447",
                                    reply_markup=InlineKeyboardMarkup([[back_btn(f"admin_user_{uid}")]]))
 
 async def admin_deduct_bal_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -2518,7 +2519,7 @@ async def admin_deduct_bal_cb(update: Update, context: ContextTypes.DEFAULT_TYPE
     if query.from_user.id != ADMIN_USER_ID: return
     uid = int(query.data.split("_")[-1])
     user_states[ADMIN_USER_ID] = {'state': 'admin_deduct_balance', 'target_uid': uid}
-    await query.edit_message_text(f"➖ Type the amount to deduct from user {uid} 👇",
+    await query.edit_message_text(f"\u2796 Type the amount to deduct from user {uid} \U0001F447",
                                    reply_markup=InlineKeyboardMarkup([[back_btn(f"admin_user_{uid}")]]))
 
 # ============================================================
@@ -2532,56 +2533,56 @@ TOGGLE_SETTINGS = {
 }
 
 SETTING_LABELS = {
-    'inr_to_vc_rate': '💱 INR → VC Rate',
-    'vc_to_inr_rate': '💱 VC → INR Rate',
-    'platform_fee_percent': '💰 Platform Fee %',
-    'premium_fee_percent': '⭐ Premium Fee %',
-    'min_gig_budget': '📉 Min Gig Budget',
-    'max_gig_budget': '📈 Max Gig Budget',
-    'new_user_bonus': '🎁 New User Bonus',
-    'featured_gig_cost': '⭐ Featured Gig Cost',
-    'featured_product_cost': '⭐ Featured Product Cost',
-    'payment_gateway': '🔀 Payment Gateway (manual/razorpay)',
-    'upi_id': '📱 UPI ID',
-    'razorpay_key_id': '🔑 Razorpay Key ID',
-    'razorpay_key_secret': '🔐 Razorpay Key Secret',
-    'payment_instructions': '📝 Payment Instructions',
-    'min_deposit_inr': '📉 Min Deposit ₹',
-    'max_deposit_inr': '📈 Max Deposit ₹',
-    'withdrawal_enabled': '💸 Withdrawals',
-    'min_withdrawal_vc': '📉 Min Withdrawal VC',
-    'max_withdrawal_vc': '📈 Max Withdrawal VC',
-    'withdrawal_fee_percent': '💰 Withdrawal Fee %',
-    'premium_enabled': '⭐ Premium System',
-    'premium_monthly_price': '💰 Monthly Price',
-    'premium_quarterly_price': '💰 Quarterly Price',
-    'premium_yearly_price': '💰 Yearly Price',
-    'premium_discount_percent': '🏷️ Discount %',
-    'premium_features': '📋 Features List',
-    'referral_enabled': '👥 Referral System',
-    'referral_bonus_vc': '🎁 Referral Bonus',
-    'referral_percent_on_transactions': '💰 Referral TX %',
-    'referral_max_percent_transactions': '📈 Max Referral %',
-    'vpn_detection_enabled': '🛡️ VPN Detection',
-    'vpn_detection_api_key': '🔑 VPN API Key',
-    'vpn_detection_api_url': '🌐 VPN API URL',
-    'vpn_block_mode': '🚫 Block Mode',
-    'max_risk_score': '⚠️ Max Risk Score',
-    'ip_check_on_deposit': '🔍 IP Check on Deposit',
-    'ip_check_on_withdrawal': '🔍 IP Check on Withdrawal',
-    'require_verified_for_withdrawal': '✅ Verified to Withdraw',
-    'min_reputation_for_withdrawal': '⭐ Min Rep to Withdraw',
-    'min_completed_gigs_for_withdrawal': '📊 Min Gigs to Withdraw',
-    'bot_name': '🤖 Bot Name',
-    'welcome_message': '👋 Welcome Message',
-    'maintenance_mode': '🔧 Maintenance Mode',
-    'support_username': '🆘 Support Username',
-    'broadcast_footer': '📢 Broadcast Footer',
-    'ip_check_on_registration': '🔍 IP Check on Registration',
-    'force_sub_enabled': '📢 Force Subscribe',
-    'force_sub_channel_id': '🆔 Channel ID (@username or -100...)',
-    'force_sub_channel_url': '🔗 Channel Invite URL',
-    'force_sub_reward_vc': '🎁 Join Reward (VC)',
+    'inr_to_vc_rate': '\U0001F4B1 INR \u2192 VC Rate',
+    'vc_to_inr_rate': '\U0001F4B1 VC \u2192 INR Rate',
+    'platform_fee_percent': '\U0001F4B0 Platform Fee %',
+    'premium_fee_percent': '\u2B50 Premium Fee %',
+    'min_gig_budget': '\U0001F4C9 Min Gig Budget',
+    'max_gig_budget': '\U0001F4C8 Max Gig Budget',
+    'new_user_bonus': '\U0001F381 New User Bonus',
+    'featured_gig_cost': '\u2B50 Featured Gig Cost',
+    'featured_product_cost': '\u2B50 Featured Product Cost',
+    'payment_gateway': '\U0001F500 Payment Gateway (manual/razorpay)',
+    'upi_id': '\U0001F4F1 UPI ID',
+    'razorpay_key_id': '\U0001F511 Razorpay Key ID',
+    'razorpay_key_secret': '\U0001F510 Razorpay Key Secret',
+    'payment_instructions': '\U0001F4DD Payment Instructions',
+    'min_deposit_inr': '\U0001F4C9 Min Deposit \u20B9',
+    'max_deposit_inr': '\U0001F4C8 Max Deposit \u20B9',
+    'withdrawal_enabled': '\U0001F4B8 Withdrawals',
+    'min_withdrawal_vc': '\U0001F4C9 Min Withdrawal VC',
+    'max_withdrawal_vc': '\U0001F4C8 Max Withdrawal VC',
+    'withdrawal_fee_percent': '\U0001F4B0 Withdrawal Fee %',
+    'premium_enabled': '\u2B50 Premium System',
+    'premium_monthly_price': '\U0001F4B0 Monthly Price',
+    'premium_quarterly_price': '\U0001F4B0 Quarterly Price',
+    'premium_yearly_price': '\U0001F4B0 Yearly Price',
+    'premium_discount_percent': '\U0001F3F7\uFE0F Discount %',
+    'premium_features': '\U0001F4CB Features List',
+    'referral_enabled': '\U0001F465 Referral System',
+    'referral_bonus_vc': '\U0001F381 Referral Bonus',
+    'referral_percent_on_transactions': '\U0001F4B0 Referral TX %',
+    'referral_max_percent_transactions': '\U0001F4C8 Max Referral %',
+    'vpn_detection_enabled': '\U0001F6E1\uFE0F VPN Detection',
+    'vpn_detection_api_key': '\U0001F511 VPN API Key',
+    'vpn_detection_api_url': '\U0001F310 VPN API URL',
+    'vpn_block_mode': '\U0001F6AB Block Mode',
+    'max_risk_score': '\u26A0\uFE0F Max Risk Score',
+    'ip_check_on_deposit': '\U0001F50D IP Check on Deposit',
+    'ip_check_on_withdrawal': '\U0001F50D IP Check on Withdrawal',
+    'require_verified_for_withdrawal': '\u2705 Verified to Withdraw',
+    'min_reputation_for_withdrawal': '\u2B50 Min Rep to Withdraw',
+    'min_completed_gigs_for_withdrawal': '\U0001F4CA Min Gigs to Withdraw',
+    'bot_name': '\U0001F916 Bot Name',
+    'welcome_message': '\U0001F44B Welcome Message',
+    'maintenance_mode': '\U0001F527 Maintenance Mode',
+    'support_username': '\U0001F198 Support Username',
+    'broadcast_footer': '\U0001F4E2 Broadcast Footer',
+    'ip_check_on_registration': '\U0001F50D IP Check on Registration',
+    'force_sub_enabled': '\U0001F4E2 Force Subscribe',
+    'force_sub_channel_id': '\U0001F194 Channel ID (@username or -100...)',
+    'force_sub_channel_url': '\U0001F517 Channel Invite URL',
+    'force_sub_reward_vc': '\U0001F381 Join Reward (VC)',
 }
 
 def _build_settings_panel(title, keys, back_target):
@@ -2594,7 +2595,7 @@ def _build_settings_panel(title, keys, back_target):
             is_on = v in ('1', 'true', 'yes')
             status = 'ON' if is_on else 'OFF'
             text += f"{label}: <b>{status}</b>\n"
-            kb.append([InlineKeyboardButton(f"{'🟢' if is_on else '🔴'} {label}", callback_data=f"stoggle_{k}")])
+            kb.append([InlineKeyboardButton(f"{'\U0001F7E2' if is_on else '\U0001F534'} {label}", callback_data=f"stoggle_{k}")])
         else:
             display_v = v[:30] if v else '(not set)'
             if 'api_key' in k and v:
@@ -2629,16 +2630,16 @@ async def admin_settings_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.from_user.id != ADMIN_USER_ID: return
     try:
         kb = [
-            [InlineKeyboardButton("💱 Economy", callback_data="admin_set_economy"),
-             InlineKeyboardButton("💳 Payments", callback_data="admin_set_payments")],
-            [InlineKeyboardButton("⭐ Premium", callback_data="admin_set_premium"),
-             InlineKeyboardButton("👥 Referrals", callback_data="admin_set_referrals")],
-            [InlineKeyboardButton("🛡️ Security", callback_data="admin_set_security"),
-             InlineKeyboardButton("⚙️ General", callback_data="admin_set_general")],
-            [InlineKeyboardButton("📢 Force Subscribe", callback_data="admin_set_forcesub")],
+            [InlineKeyboardButton("\U0001F4B1 Economy", callback_data="admin_set_economy"),
+             InlineKeyboardButton("\U0001F4B3 Payments", callback_data="admin_set_payments")],
+            [InlineKeyboardButton("\u2B50 Premium", callback_data="admin_set_premium"),
+             InlineKeyboardButton("\U0001F465 Referrals", callback_data="admin_set_referrals")],
+            [InlineKeyboardButton("\U0001F6E1\uFE0F Security", callback_data="admin_set_security"),
+             InlineKeyboardButton("\u2699\uFE0F General", callback_data="admin_set_general")],
+            [InlineKeyboardButton("\U0001F4E2 Force Subscribe", callback_data="admin_set_forcesub")],
             [back_btn("admin_panel")]
         ]
-        await query.edit_message_text("<b>⚙️ Settings</b>\n\nTap a category to configure:", parse_mode=ParseMode.HTML,
+        await query.edit_message_text("<b>\u2699\uFE0F Settings</b>\n\nTap a category to configure:", parse_mode=ParseMode.HTML,
                                        reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
 
@@ -2649,7 +2650,7 @@ async def admin_set_economy_cb(update: Update, context: ContextTypes.DEFAULT_TYP
     try:
         keys = ['inr_to_vc_rate', 'vc_to_inr_rate', 'platform_fee_percent', 'premium_fee_percent',
                 'min_gig_budget', 'max_gig_budget', 'new_user_bonus', 'featured_gig_cost', 'featured_product_cost']
-        text, kb = _build_settings_panel("💱 Economy Settings", keys, "admin_settings")
+        text, kb = _build_settings_panel("\U0001F4B1 Economy Settings", keys, "admin_settings")
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
 
@@ -2660,10 +2661,10 @@ async def admin_set_payments_cb(update: Update, context: ContextTypes.DEFAULT_TY
     try:
         keys = ['payment_gateway', 'upi_id', 'payment_instructions', 'min_deposit_inr', 'max_deposit_inr',
                 'withdrawal_enabled', 'min_withdrawal_vc', 'max_withdrawal_vc', 'withdrawal_fee_percent']
-        text, kb = _build_settings_panel("💳 Payment Settings", keys, "admin_settings")
+        text, kb = _build_settings_panel("\U0001F4B3 Payment Settings", keys, "admin_settings")
         # Add Razorpay config button
-        rz_status = "✅ Connected" if get_setting('razorpay_key_id', '') else "❌ Not Set"
-        kb.insert(-1, [InlineKeyboardButton(f"🔷 Razorpay API ({rz_status})", callback_data="admin_razorpay_config")])
+        rz_status = "\u2705 Connected" if get_setting('razorpay_key_id', '') else "\u274C Not Set"
+        kb.insert(-1, [InlineKeyboardButton(f"\U0001F537 Razorpay API ({rz_status})", callback_data="admin_razorpay_config")])
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
 
@@ -2674,7 +2675,7 @@ async def admin_set_premium_cb(update: Update, context: ContextTypes.DEFAULT_TYP
     try:
         keys = ['premium_enabled', 'premium_monthly_price', 'premium_quarterly_price',
                 'premium_yearly_price', 'premium_discount_percent', 'premium_features']
-        text, kb = _build_settings_panel("⭐ Premium Settings", keys, "admin_settings")
+        text, kb = _build_settings_panel("\u2B50 Premium Settings", keys, "admin_settings")
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
 
@@ -2684,7 +2685,7 @@ async def admin_set_referrals_cb(update: Update, context: ContextTypes.DEFAULT_T
     if query.from_user.id != ADMIN_USER_ID: return
     try:
         keys = ['referral_enabled', 'referral_bonus_vc', 'referral_percent_on_transactions', 'referral_max_percent_transactions']
-        text, kb = _build_settings_panel("👥 Referral Settings", keys, "admin_settings")
+        text, kb = _build_settings_panel("\U0001F465 Referral Settings", keys, "admin_settings")
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
 
@@ -2696,7 +2697,7 @@ async def admin_set_security_cb(update: Update, context: ContextTypes.DEFAULT_TY
         keys = ['vpn_detection_enabled', 'vpn_detection_api_key', 'vpn_detection_api_url',
                 'vpn_block_mode', 'max_risk_score', 'ip_check_on_deposit', 'ip_check_on_withdrawal',
                 'require_verified_for_withdrawal', 'min_reputation_for_withdrawal', 'min_completed_gigs_for_withdrawal']
-        text, kb = _build_settings_panel("🔒 Security Settings", keys, "admin_settings")
+        text, kb = _build_settings_panel("\U0001F512 Security Settings", keys, "admin_settings")
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
 
@@ -2706,7 +2707,7 @@ async def admin_set_general_cb(update: Update, context: ContextTypes.DEFAULT_TYP
     if query.from_user.id != ADMIN_USER_ID: return
     try:
         keys = ['bot_name', 'welcome_message', 'maintenance_mode', 'support_username', 'broadcast_footer']
-        text, kb = _build_settings_panel("📝 General Settings", keys, "admin_settings")
+        text, kb = _build_settings_panel("\U0001F4DD General Settings", keys, "admin_settings")
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
 
@@ -2716,8 +2717,8 @@ async def admin_set_forcesub_cb(update: Update, context: ContextTypes.DEFAULT_TY
     if query.from_user.id != ADMIN_USER_ID: return
     try:
         keys = ['force_sub_enabled', 'force_sub_channel_id', 'force_sub_channel_url', 'force_sub_reward_vc']
-        text, kb = _build_settings_panel("📢 Force Subscribe Settings", keys, "admin_settings")
-        text += "\n<i>ℹ️ Add your bot as admin in the channel so it can check membership.\nChannel ID: use @channelname or numeric ID (-100...).\nUsers must join to use the bot and get free VC!</i>"
+        text, kb = _build_settings_panel("\U0001F4E2 Force Subscribe Settings", keys, "admin_settings")
+        text += "\n<i>\u2139\uFE0F Add your bot as admin in the channel so it can check membership.\nChannel ID: use @channelname or numeric ID (-100...).\nUsers must join to use the bot and get free VC!</i>"
         await query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
     except BadRequest: pass
 
@@ -2760,8 +2761,8 @@ async def setting_edit_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
         cat = SETTING_TO_CATEGORY.get(key, 'admin_settings')
         user_states[ADMIN_USER_ID] = {'state': 'admin_edit_setting', 'edit_key': key, 'back_to': cat}
         text = (f"<b>{label}</b>\n"
-                f"📌 Now: <code>{current if current else '—'}</code>\n\n"
-                f"Just type the new value below 👇")
+                f"\U0001F4CC Now: <code>{current if current else '\u2014'}</code>\n\n"
+                f"Just type the new value below \U0001F447")
         await query.edit_message_text(text, parse_mode=ParseMode.HTML,
                                        reply_markup=InlineKeyboardMarkup([[back_btn(cat)]]))
     except BadRequest: pass
@@ -2771,7 +2772,7 @@ async def admin_broadcast_cb(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await safe_answer(query)
     if query.from_user.id != ADMIN_USER_ID: return
     user_states[ADMIN_USER_ID] = {'state': 'admin_broadcast'}
-    await query.edit_message_text("📢 Type your broadcast message below 👇\n<i>(HTML formatting supported)</i>",
+    await query.edit_message_text("\U0001F4E2 Type your broadcast message below \U0001F447\n<i>(HTML formatting supported)</i>",
                                    reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
 
 async def admin_balance_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -2780,7 +2781,7 @@ async def admin_balance_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.from_user.id != ADMIN_USER_ID: return
     user_states[ADMIN_USER_ID] = {'state': 'admin_balance_uid'}
     await query.edit_message_text(
-        "💰 <b>Add / Deduct Balance</b>\n\nType user ID or @username below 👇",
+        "\U0001F4B0 <b>Add / Deduct Balance</b>\n\nType user ID or @username below \U0001F447",
         parse_mode=ParseMode.HTML,
         reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
 
@@ -2793,7 +2794,7 @@ async def bal_add_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     target_uid = int(query.data.split("_")[2])
     user_states[ADMIN_USER_ID] = {'state': 'admin_bal_add', 'target_uid': target_uid}
     await query.edit_message_text(
-        f"➕ Type amount to add to user {target_uid} 👇",
+        f"\u2795 Type amount to add to user {target_uid} \U0001F447",
         parse_mode=ParseMode.HTML,
         reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
 
@@ -2805,7 +2806,7 @@ async def bal_ded_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     target_uid = int(query.data.split("_")[2])
     user_states[ADMIN_USER_ID] = {'state': 'admin_bal_ded', 'target_uid': target_uid}
     await query.edit_message_text(
-        f"➖ Type amount to deduct from user {target_uid} 👇",
+        f"\u2796 Type amount to deduct from user {target_uid} \U0001F447",
         parse_mode=ParseMode.HTML,
         reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
 
@@ -2816,7 +2817,7 @@ async def admin_set_upi_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     current = get_setting('upi_id', '(not set)')
     user_states[ADMIN_USER_ID] = {'state': 'admin_edit_setting', 'edit_key': 'upi_id', 'back_to': 'admin_set_payments'}
     await query.edit_message_text(
-        f"📱 <b>UPI ID</b>\n📌 Now: <code>{current}</code>\n\nType your new UPI ID below 👇",
+        f"\U0001F4F1 <b>UPI ID</b>\n\U0001F4CC Now: <code>{current}</code>\n\nType your new UPI ID below \U0001F447",
         parse_mode=ParseMode.HTML,
         reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
 
@@ -2825,7 +2826,7 @@ async def admin_check_user_cb(update: Update, context: ContextTypes.DEFAULT_TYPE
     await safe_answer(query)
     if query.from_user.id != ADMIN_USER_ID: return
     user_states[ADMIN_USER_ID] = {'state': 'admin_check_user'}
-    await query.edit_message_text("🔍 Type user ID, @username, or name to search 👇",
+    await query.edit_message_text("\U0001F50D Type user ID, @username, or name to search \U0001F447",
                                    reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
 
 async def admin_analytics_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -2844,22 +2845,22 @@ async def admin_analytics_cb(update: Update, context: ContextTypes.DEFAULT_TYPE)
         total_products = conn.execute("SELECT COUNT(*) as c FROM products WHERE is_active=1").fetchone()['c']
         total_sales = conn.execute("SELECT COUNT(*) as c FROM product_purchases").fetchone()['c']
         conn.close()
-        text = (f"<b>📊 Analytics</b>\n\n"
-                f"👥 Total Users: {total_users}\n"
-                f"🟢 Active (24h): {active_24h}\n"
-                f"💼 Total Gigs: {total_gigs} ({completed_gigs} completed)\n"
-                f"🛍️ Products: {total_products} ({total_sales} sales)\n"
-                f"💰 Total Volume: {total_vol:.0f} VC\n"
-                f"📥 Total Deposits: {total_deposits:.0f} VC\n"
-                f"📤 Total Withdrawals: {total_withdrawals:.0f} VC\n"
-                f"🏦 Platform Fees: {get_setting('platform_total_fees','0')} VC\n")
+        text = (f"<b>\U0001F4CA Analytics</b>\n\n"
+                f"\U0001F465 Total Users: {total_users}\n"
+                f"\U0001F7E2 Active (24h): {active_24h}\n"
+                f"\U0001F4BC Total Gigs: {total_gigs} ({completed_gigs} completed)\n"
+                f"\U0001F6CD\uFE0F Products: {total_products} ({total_sales} sales)\n"
+                f"\U0001F4B0 Total Volume: {total_vol:.0f} VC\n"
+                f"\U0001F4E5 Total Deposits: {total_deposits:.0f} VC\n"
+                f"\U0001F4E4 Total Withdrawals: {total_withdrawals:.0f} VC\n"
+                f"\U0001F3E6 Platform Fees: {get_setting('platform_total_fees','0')} VC\n")
         await query.edit_message_text(text, parse_mode=ParseMode.HTML,
                                        reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
     except BadRequest: pass
 
 
 # ============================================================
-# MESSAGE HANDLER — processes all text/file input based on state
+# MESSAGE HANDLER \u2014 processes all text/file input based on state
 # ============================================================
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -2885,7 +2886,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 min_d = float(get_setting('min_deposit_inr', '50'))
                 max_d = float(get_setting('max_deposit_inr', '10000'))
                 if amount_inr < min_d or amount_inr > max_d:
-                    await msg.reply_text(f"Amount must be between ₹{min_d:.0f} and ₹{max_d:.0f}")
+                    await msg.reply_text(f"Amount must be between \u20B9{min_d:.0f} and \u20B9{max_d:.0f}")
                     return
                 rate = float(get_setting('inr_to_vc_rate', '10'))
                 vc = round(amount_inr * rate, 2)
@@ -2915,20 +2916,20 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                       (uid, amount_inr, vc, link_data.get('id', ''), 'razorpay'))
                         conn.commit(); conn.close()
                         user_states.pop(uid, None)
-                        kb = [[InlineKeyboardButton("💳 Pay Now", url=pay_url)], [back_btn("wallet")]]
+                        kb = [[InlineKeyboardButton("\U0001F4B3 Pay Now", url=pay_url)], [back_btn("wallet")]]
                         await msg.reply_text(
-                            f"💰 <b>Pay ₹{amount_inr:.0f}</b> → {vc:.0f} VC\n\n"
-                            f"🔗 Click below to pay via Razorpay (UPI/Card/NetBanking)\n"
-                            f"✅ Payment will be auto-verified!",
+                            f"\U0001F4B0 <b>Pay \u20B9{amount_inr:.0f}</b> \u2192 {vc:.0f} VC\n\n"
+                            f"\U0001F517 Click below to pay via Razorpay (UPI/Card/NetBanking)\n"
+                            f"\u2705 Payment will be auto-verified!",
                             parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
                     except Exception as e:
                         logger.error(f"Razorpay error: {e}")
                         user_states[uid] = {'state': 'deposit_proof', 'amount_inr': amount_inr, 'vault_coins': vc}
-                        await msg.reply_text(f"⚠️ Gateway error. Manual mode.\n₹{amount_inr:.0f} = {vc:.0f} VC\nUpload payment proof:")
+                        await msg.reply_text(f"\u26A0\uFE0F Gateway error. Manual mode.\n\u20B9{amount_inr:.0f} = {vc:.0f} VC\nUpload payment proof:")
                 else:
                     user_states[uid] = {'state': 'deposit_proof', 'amount_inr': amount_inr, 'vault_coins': vc}
                     upi = get_setting('upi_id', '')
-                    await msg.reply_text(f"₹{amount_inr:.0f} = {vc:.0f} VC\n\n💳 Pay to UPI: <code>{upi}</code>\n\nUpload payment proof (screenshot):",
+                    await msg.reply_text(f"\u20B9{amount_inr:.0f} = {vc:.0f} VC\n\n\U0001F4B3 Pay to UPI: <code>{upi}</code>\n\nUpload payment proof (screenshot):",
                         parse_mode=ParseMode.HTML)
             except ValueError:
                 await msg.reply_text("Please send a valid number.")
@@ -2948,12 +2949,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                           (uid, state_data['amount_inr'], state_data['vault_coins'], file_id))
             conn.commit(); conn.close()
             user_states.pop(uid, None)
-            await msg.reply_text(f"✅ Deposit request submitted!\n₹{state_data['amount_inr']:.0f} → {state_data['vault_coins']:.0f} VC\n\nWaiting for admin approval.",
+            await msg.reply_text(f"\u2705 Deposit request submitted!\n\u20B9{state_data['amount_inr']:.0f} \u2192 {state_data['vault_coins']:.0f} VC\n\nWaiting for admin approval.",
                                   reply_markup=InlineKeyboardMarkup([[back_btn("wallet")]]))
             # Notify admin
             try:
                 await context.bot.send_message(ADMIN_USER_ID,
-                    f"📥 <b>New Deposit</b>\nUser: {user.first_name} ({uid})\n₹{state_data['amount_inr']} → {state_data['vault_coins']} VC",
+                    f"\U0001F4E5 <b>New Deposit</b>\nUser: {user.first_name} ({uid})\n\u20B9{state_data['amount_inr']} \u2192 {state_data['vault_coins']} VC",
                     parse_mode=ParseMode.HTML)
                 await context.bot.send_photo(ADMIN_USER_ID, file_id, caption=f"Proof from {user.first_name}")
             except: pass
@@ -2978,7 +2979,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 rate = float(get_setting('vc_to_inr_rate', '0.05'))
                 inr = round(net_vc * rate, 2)
                 user_states[uid] = {'state': 'withdraw_details', 'vault_coins': vc_amount, 'amount_inr': inr, 'fee': fee}
-                await msg.reply_text(f"{vc_amount:.0f} VC - {fee:.0f} fee = {net_vc:.0f} VC → ₹{inr:.2f}\n\nSend your UPI ID / payment details:")
+                await msg.reply_text(f"{vc_amount:.0f} VC - {fee:.0f} fee = {net_vc:.0f} VC \u2192 \u20B9{inr:.2f}\n\nSend your UPI ID / payment details:")
             except ValueError:
                 await msg.reply_text("Send a valid number.")
             return
@@ -2986,8 +2987,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if state == 'withdraw_details':
             payout_details = text
             if not deduct_balance(uid, state_data['vault_coins'], 'withdrawal',
-                                   f"Withdrawal request: {state_data['vault_coins']} VC → ₹{state_data['amount_inr']}"):
-                await msg.reply_text("❌ Insufficient balance.")
+                                   f"Withdrawal request: {state_data['vault_coins']} VC \u2192 \u20B9{state_data['amount_inr']}"):
+                await msg.reply_text("\u274C Insufficient balance.")
                 user_states.pop(uid, None)
                 return
             conn = get_db()
@@ -2995,11 +2996,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                           (uid, state_data['vault_coins'], state_data['amount_inr'], payout_details))
             conn.commit(); conn.close()
             user_states.pop(uid, None)
-            await msg.reply_text(f"✅ Withdrawal requested!\n{state_data['vault_coins']:.0f} VC → ₹{state_data['amount_inr']:.2f}\nPayout to: {payout_details}\n\nWaiting for admin processing.",
+            await msg.reply_text(f"\u2705 Withdrawal requested!\n{state_data['vault_coins']:.0f} VC \u2192 \u20B9{state_data['amount_inr']:.2f}\nPayout to: {payout_details}\n\nWaiting for admin processing.",
                                   reply_markup=InlineKeyboardMarkup([[back_btn("wallet")]]))
             try:
                 await context.bot.send_message(ADMIN_USER_ID,
-                    f"📤 <b>New Withdrawal</b>\nUser: {user.first_name} ({uid})\n{state_data['vault_coins']} VC → ₹{state_data['amount_inr']}\nPayout: {payout_details}",
+                    f"\U0001F4E4 <b>New Withdrawal</b>\nUser: {user.first_name} ({uid})\n{state_data['vault_coins']} VC \u2192 \u20B9{state_data['amount_inr']}\nPayout: {payout_details}",
                     parse_mode=ParseMode.HTML)
             except: pass
             return
@@ -3011,7 +3012,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.execute("UPDATE users SET bio=? WHERE user_id=?", (bio, uid))
             conn.commit(); conn.close()
             user_states.pop(uid, None)
-            await msg.reply_text(f"✅ Bio updated!", reply_markup=InlineKeyboardMarkup([[back_btn("profile")]]))
+            await msg.reply_text(f"\u2705 Bio updated!", reply_markup=InlineKeyboardMarkup([[back_btn("profile")]]))
             return
 
         # ---- EDIT SKILLS ----
@@ -3021,13 +3022,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.execute("UPDATE users SET skills=? WHERE user_id=?", (skills, uid))
             conn.commit(); conn.close()
             user_states.pop(uid, None)
-            await msg.reply_text("✅ Skills updated!", reply_markup=InlineKeyboardMarkup([[back_btn("profile")]]))
+            await msg.reply_text("\u2705 Skills updated!", reply_markup=InlineKeyboardMarkup([[back_btn("profile")]]))
             return
 
         # ---- POST GIG FLOW ----
         if state == 'gig_title':
             user_states[uid] = {'state': 'gig_description', 'title': text[:100]}
-            await msg.reply_text("📝 Now send the gig description:")
+            await msg.reply_text("\U0001F4DD Now send the gig description:")
             return
 
         if state == 'gig_description':
@@ -3035,7 +3036,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             cats = get_categories()
             kb = [[InlineKeyboardButton(f"{c['emoji']} {c['name']}", callback_data=f"gig_cat_select_{c['name']}")]
                   for c in cats]
-            await msg.reply_text("📂 Select category:", reply_markup=InlineKeyboardMarkup(kb))
+            await msg.reply_text("\U0001F4C2 Select category:", reply_markup=InlineKeyboardMarkup(kb))
             return
 
         if state == 'gig_budget':
@@ -3051,7 +3052,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     await msg.reply_text(f"Insufficient balance ({u['balance']:.0f} VC)")
                     return
                 user_states[uid] = {**state_data, 'state': 'gig_deadline', 'budget': budget}
-                await msg.reply_text("⏰ Deadline in hours (default 48):")
+                await msg.reply_text("\u23F0 Deadline in hours (default 48):")
             except ValueError:
                 await msg.reply_text("Send a valid number.")
             return
@@ -3067,7 +3068,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                           (uid, data['title'], data['description'], data.get('category', 'Other'), data['budget'], hours))
             conn.commit(); conn.close()
             user_states.pop(uid, None)
-            await msg.reply_text(f"✅ Gig posted!\n<b>{data['title']}</b>\n💰 {data['budget']:.0f} VC | ⏰ {hours}h",
+            await msg.reply_text(f"\u2705 Gig posted!\n<b>{data['title']}</b>\n\U0001F4B0 {data['budget']:.0f} VC | \u23F0 {hours}h",
                                   parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
             return
 
@@ -3081,7 +3082,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             gig = conn.execute("SELECT * FROM gigs WHERE id=?", (gig_id,)).fetchone()
             conn.close()
             user_states.pop(uid, None)
-            await msg.reply_text("✅ Application submitted!", reply_markup=InlineKeyboardMarkup([[back_btn(f"view_gig_{gig_id}")]]))
+            await msg.reply_text("\u2705 Application submitted!", reply_markup=InlineKeyboardMarkup([[back_btn(f"view_gig_{gig_id}")]]))
             if gig:
                 try:
                     conn_n = get_db()
@@ -3089,12 +3090,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     conn_n.close()
                     app_id_val = latest_app['id'] if latest_app else 0
                     notify_kb = InlineKeyboardMarkup([
-                        [InlineKeyboardButton("👁️ View Applications", callback_data=f"gig_apps_{gig_id}")],
-                        [InlineKeyboardButton("✅ Accept", callback_data=f"accept_app_{app_id_val}"),
-                         InlineKeyboardButton("❌ Decline", callback_data=f"decline_app_{app_id_val}")]
+                        [InlineKeyboardButton("\U0001F441\uFE0F View Applications", callback_data=f"gig_apps_{gig_id}")],
+                        [InlineKeyboardButton("\u2705 Accept", callback_data=f"accept_app_{app_id_val}"),
+                         InlineKeyboardButton("\u274C Decline", callback_data=f"decline_app_{app_id_val}")]
                     ])
                     await context.bot.send_message(gig['poster_id'],
-                        f"📝 <b>New Application!</b>\n\n"
+                        f"\U0001F4DD <b>New Application!</b>\n\n"
                         f"Gig: <b>{gig['title']}</b>\n"
                         f"From: {user.first_name}\n"
                         f"Proposal: {text[:150]}",
@@ -3119,10 +3120,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             gig = conn.execute("SELECT * FROM gigs WHERE id=?", (gig_id,)).fetchone()
             conn.close()
             user_states.pop(uid, None)
-            await msg.reply_text("✅ Work delivered!", reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
+            await msg.reply_text("\u2705 Work delivered!", reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
             if gig:
                 await notify_user(context.bot, gig['poster_id'],
-                                  f"📦 Work delivered for <b>{gig['title']}</b>! Review and approve.")
+                                  f"\U0001F4E6 Work delivered for <b>{gig['title']}</b>! Review and approve.")
             return
 
         # ---- DISPUTE ----
@@ -3137,15 +3138,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 conn.execute("UPDATE gigs SET status='disputed' WHERE id=?", (gig_id,))
                 conn.execute("UPDATE users SET total_disputes_filed=total_disputes_filed+1 WHERE user_id=?", (uid,))
                 conn.commit()
-                await notify_user(context.bot, against, f"⚠️ A dispute was filed against you for gig <b>{gig['title']}</b>")
+                await notify_user(context.bot, against, f"\u26A0\uFE0F A dispute was filed against you for gig <b>{gig['title']}</b>")
                 try:
                     await context.bot.send_message(ADMIN_USER_ID,
-                        f"⚠️ <b>New Dispute</b>\nGig: {gig['title']} (#{gig_id})\nFiled by: {user.first_name}",
+                        f"\u26A0\uFE0F <b>New Dispute</b>\nGig: {gig['title']} (#{gig_id})\nFiled by: {user.first_name}",
                         parse_mode=ParseMode.HTML)
                 except: pass
             conn.close()
             user_states.pop(uid, None)
-            await msg.reply_text("⚠️ Dispute filed. Admin will review.", reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
+            await msg.reply_text("\u26A0\uFE0F Dispute filed. Admin will review.", reply_markup=InlineKeyboardMarkup([[back_btn("gigs_menu")]]))
             return
 
         # ---- RATING ----
@@ -3165,7 +3166,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     await check_badges(gig['claimed_by'], context.bot)
                 conn.close()
                 user_states.pop(uid, None)
-                await msg.reply_text(f"✅ Rated {rating}⭐", reply_markup=InlineKeyboardMarkup([[back_btn()]]))
+                await msg.reply_text(f"\u2705 Rated {rating}\u2B50", reply_markup=InlineKeyboardMarkup([[back_btn()]]))
             except ValueError:
                 await msg.reply_text("Send a number 1-5.")
             return
@@ -3189,7 +3190,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     update_reputation(p['seller_id'])
                 conn.close()
                 user_states.pop(uid, None)
-                await msg.reply_text(f"✅ Rated {rating}⭐", reply_markup=InlineKeyboardMarkup([[back_btn("store_menu")]]))
+                await msg.reply_text(f"\u2705 Rated {rating}\u2B50", reply_markup=InlineKeyboardMarkup([[back_btn("store_menu")]]))
             except ValueError:
                 await msg.reply_text("Send a number 1-5.")
             return
@@ -3209,12 +3210,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await msg.reply_text("Please send a file, photo, video, or audio.")
                 return
             user_states[uid] = {'state': 'product_title', 'file_id': file_id}
-            await msg.reply_text("📝 Send product title:")
+            await msg.reply_text("\U0001F4DD Send product title:")
             return
 
         if state == 'product_title':
             user_states[uid] = {**state_data, 'state': 'product_description', 'title': text[:100]}
-            await msg.reply_text("📝 Send product description:")
+            await msg.reply_text("\U0001F4DD Send product description:")
             return
 
         if state == 'product_description':
@@ -3222,7 +3223,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             cats = get_categories()
             kb = [[InlineKeyboardButton(f"{c['emoji']} {c['name']}", callback_data=f"prod_cat_select_{c['name']}")]
                   for c in cats]
-            await msg.reply_text("📂 Select category:", reply_markup=InlineKeyboardMarkup(kb))
+            await msg.reply_text("\U0001F4C2 Select category:", reply_markup=InlineKeyboardMarkup(kb))
             return
 
         if state == 'product_price':
@@ -3235,7 +3236,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                               (uid, data['title'], data['description'], data.get('category','Other'), price, data['file_id']))
                 conn.commit(); conn.close()
                 user_states.pop(uid, None)
-                await msg.reply_text(f"✅ Product listed!\n<b>{data['title']}</b> — {price:.0f} VC",
+                await msg.reply_text(f"\u2705 Product listed!\n<b>{data['title']}</b> \u2014 {price:.0f} VC",
                                       parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[back_btn("store_menu")]]))
             except ValueError:
                 await msg.reply_text("Send a valid price.")
@@ -3249,10 +3250,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                     (f'%{keyword}%', f'%{keyword}%')).fetchall()
             conn.close()
             user_states.pop(uid, None)
-            t = f"<b>🔍 Search: {keyword}</b>\n\n"
+            t = f"<b>\U0001F50D Search: {keyword}</b>\n\n"
             if not results: t += "No results."
             for g in results:
-                t += f"• <b>{g['title']}</b> — {g['budget']:.0f} VC\n"
+                t += f"\u2022 <b>{g['title']}</b> \u2014 {g['budget']:.0f} VC\n"
             kb = [[InlineKeyboardButton(g['title'][:30], callback_data=f"view_gig_{g['id']}")] for g in results]
             kb.append([back_btn("gigs_menu")])
             await msg.reply_text(t, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -3265,10 +3266,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                     (f'%{keyword}%', f'%{keyword}%')).fetchall()
             conn.close()
             user_states.pop(uid, None)
-            t = f"<b>🔍 Search: {keyword}</b>\n\n"
+            t = f"<b>\U0001F50D Search: {keyword}</b>\n\n"
             if not results: t += "No results."
             for p in results:
-                t += f"• <b>{p['title']}</b> — {p['price']:.0f} VC\n"
+                t += f"\u2022 <b>{p['title']}</b> \u2014 {p['price']:.0f} VC\n"
             kb = [[InlineKeyboardButton(p['title'][:30], callback_data=f"view_product_{p['id']}")] for p in results]
             kb.append([back_btn("store_menu")])
             await msg.reply_text(t, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(kb))
@@ -3282,9 +3283,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 set_setting(edit_key, text.strip())
                 label = SETTING_LABELS.get(edit_key, edit_key)
                 user_states.pop(uid, None)
-                await msg.reply_text(f"✅ {label} updated to: {text.strip()}", reply_markup=InlineKeyboardMarkup([[back_btn(back_to)]]))
+                await msg.reply_text(f"\u2705 {label} updated to: {text.strip()}", reply_markup=InlineKeyboardMarkup([[back_btn(back_to)]]))
             else:
-                await msg.reply_text("⚠️ Something went wrong. Please try again from Settings.",
+                await msg.reply_text("\u26A0\uFE0F Something went wrong. Please try again from Settings.",
                     reply_markup=InlineKeyboardMarkup([[back_btn("admin_settings")]]))
                 user_states.pop(uid, None)
             return
@@ -3302,7 +3303,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     sent += 1
                 except: pass
             user_states.pop(uid, None)
-            await msg.reply_text(f"📢 Broadcast sent to {sent}/{len(users)} users.",
+            await msg.reply_text(f"\U0001F4E2 Broadcast sent to {sent}/{len(users)} users.",
                                   reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
             return
 
@@ -3312,7 +3313,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 target = state_data['target_uid']
                 new_bal = add_balance(target, amount, 'admin_add', f'Added by admin')
                 user_states.pop(uid, None)
-                await msg.reply_text(f"✅ Added <b>+{amount} VC</b> to user <code>{target}</code>\n💰 New balance: <b>{new_bal:.1f} VC</b>",
+                await msg.reply_text(f"\u2705 Added <b>+{amount} VC</b> to user <code>{target}</code>\n\U0001F4B0 New balance: <b>{new_bal:.1f} VC</b>",
                                       parse_mode=ParseMode.HTML,
                                       reply_markup=InlineKeyboardMarkup([[back_btn(f"admin_user_{target}")]]))
             except: await msg.reply_text("Send a valid number.")
@@ -3324,12 +3325,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 target = state_data['target_uid']
                 if deduct_balance(target, amount, 'admin_deduct', f'Deducted by admin'):
                     new_bal = get_balance(target)
-                    await msg.reply_text(f"✅ Deducted <b>-{amount} VC</b> from user <code>{target}</code>\n💰 Remaining: <b>{new_bal:.1f} VC</b>",
+                    await msg.reply_text(f"\u2705 Deducted <b>-{amount} VC</b> from user <code>{target}</code>\n\U0001F4B0 Remaining: <b>{new_bal:.1f} VC</b>",
                                           parse_mode=ParseMode.HTML,
                                           reply_markup=InlineKeyboardMarkup([[back_btn(f"admin_user_{target}")]]))
                 else:
                     cur_bal = get_balance(target)
-                    await msg.reply_text(f"❌ Insufficient balance. Current: <b>{cur_bal:.1f} VC</b>",
+                    await msg.reply_text(f"\u274C Insufficient balance. Current: <b>{cur_bal:.1f} VC</b>",
                                           parse_mode=ParseMode.HTML,
                                           reply_markup=InlineKeyboardMarkup([[back_btn(f"admin_user_{target}")]]))
                 user_states.pop(uid, None)
@@ -3353,20 +3354,20 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     uname = f" (@{u['username']})" if u and u['username'] else ''
                     user_states.pop(uid, None)
                     await msg.reply_text(
-                        f"👤 <b>User:</b> {name}{uname}\n🆔 <b>ID:</b> <code>{target_uid}</code>\n💰 <b>Balance:</b> {bal} VC",
+                        f"\U0001F464 <b>User:</b> {name}{uname}\n\U0001F194 <b>ID:</b> <code>{target_uid}</code>\n\U0001F4B0 <b>Balance:</b> {bal} VC",
                         parse_mode=ParseMode.HTML,
                         reply_markup=InlineKeyboardMarkup([
-                            [InlineKeyboardButton("➕ Add Balance", callback_data=f"bal_add_{target_uid}"),
-                             InlineKeyboardButton("➖ Deduct Balance", callback_data=f"bal_ded_{target_uid}")],
+                            [InlineKeyboardButton("\u2795 Add Balance", callback_data=f"bal_add_{target_uid}"),
+                             InlineKeyboardButton("\u2796 Deduct Balance", callback_data=f"bal_ded_{target_uid}")],
                             [back_btn("admin_panel")]
                         ]))
                 else:
-                    await msg.reply_text("❌ User not found. Send a valid user ID or @username.",
+                    await msg.reply_text("\u274C User not found. Send a valid user ID or @username.",
                         reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
                 conn.close()
             except Exception as e:
                 logger.error(f"Balance lookup error: {e}")
-                await msg.reply_text("❌ Error looking up user. Send a valid user ID or @username.",
+                await msg.reply_text("\u274C Error looking up user. Send a valid user ID or @username.",
                     reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
             return
 
@@ -3376,16 +3377,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 target = state_data['target_uid']
                 if state == 'admin_bal_add':
                     new_bal = add_balance(target, amount, 'admin_add', 'Admin adjustment')
-                    await msg.reply_text(f"✅ Added <b>+{amount} VC</b> to user <code>{target}</code>\n💰 New balance: <b>{new_bal:.1f} VC</b>",
+                    await msg.reply_text(f"\u2705 Added <b>+{amount} VC</b> to user <code>{target}</code>\n\U0001F4B0 New balance: <b>{new_bal:.1f} VC</b>",
                         parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
                 else:
                     if deduct_balance(target, amount, 'admin_deduct', 'Admin adjustment'):
                         new_bal = get_balance(target)
-                        await msg.reply_text(f"✅ Deducted <b>-{amount} VC</b> from user <code>{target}</code>\n💰 Remaining: <b>{new_bal:.1f} VC</b>",
+                        await msg.reply_text(f"\u2705 Deducted <b>-{amount} VC</b> from user <code>{target}</code>\n\U0001F4B0 Remaining: <b>{new_bal:.1f} VC</b>",
                             parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
                     else:
                         cur_bal = get_balance(target)
-                        await msg.reply_text(f"❌ Insufficient balance. Current: <b>{cur_bal:.1f} VC</b>",
+                        await msg.reply_text(f"\u274C Insufficient balance. Current: <b>{cur_bal:.1f} VC</b>",
                             parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[back_btn("admin_panel")]]))
                 user_states.pop(uid, None)
             except:
@@ -3412,20 +3413,20 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     circular = detect_circular_transactions(target_uid)
                     u = dict(u)
                     level, xp = calculate_level(u)
-                    t = (f"<b>🔍 User Check: {u['first_name']}</b>\n\n"
+                    t = (f"<b>\U0001F50D User Check: {u['first_name']}</b>\n\n"
                          f"ID: {target_uid}\n"
                          f"Balance: {u['balance']:.1f} | Frozen: {u['frozen_balance']:.1f}\n"
                          f"Earned: {u['total_earned']:.1f} | Spent: {u['total_spent']:.1f}\n"
                          f"Gigs: {u['completed_gigs']} | Failed: {u['failed_gigs']}\n"
-                         f"Risk: {risk} | VPN: {'⚠️' if u['is_vpn_detected'] else '✅'}\n"
+                         f"Risk: {risk} | VPN: {'\u26A0\uFE0F' if u['is_vpn_detected'] else '\u2705'}\n"
                          f"Disputes: filed {u['total_disputes_filed']}, lost {u['total_disputes_lost']}\n")
                     if circular:
-                        t += f"⚠️ CIRCULAR TX with: {circular}\n"
+                        t += f"\u26A0\uFE0F CIRCULAR TX with: {circular}\n"
                     await msg.reply_text(t, parse_mode=ParseMode.HTML,
-                                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📋 View Full", callback_data=f"admin_user_{target_uid}"), back_btn("admin_panel")]]))
+                                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("\U0001F4CB View Full", callback_data=f"admin_user_{target_uid}"), back_btn("admin_panel")]]))
                 else:
-                    await msg.reply_text("❌ User not found. Try a different ID, @username, or name.",
-                        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔄 Try Again", callback_data="admin_check_user"), back_btn("admin_panel")]]))
+                    await msg.reply_text("\u274C User not found. Try a different ID, @username, or name.",
+                        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("\U0001F504 Try Again", callback_data="admin_check_user"), back_btn("admin_panel")]]))
                 user_states.pop(uid, None)
             except Exception as e:
                 logger.error(f"admin_check_user error: {e}")
@@ -3447,7 +3448,7 @@ async def gig_cat_select_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = query.from_user.id
     if uid in user_states:
         user_states[uid] = {**user_states[uid], 'state': 'gig_budget', 'category': cat}
-        await query.edit_message_text(f"Category: {cat}\n\n💰 Send the budget in VC:")
+        await query.edit_message_text(f"Category: {cat}\n\n\U0001F4B0 Send the budget in VC:")
 
 async def prod_cat_select_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -3456,7 +3457,7 @@ async def prod_cat_select_cb(update: Update, context: ContextTypes.DEFAULT_TYPE)
     uid = query.from_user.id
     if uid in user_states:
         user_states[uid] = {**user_states[uid], 'state': 'product_price', 'category': cat}
-        await query.edit_message_text(f"Category: {cat}\n\n💰 Send the price in VC:")
+        await query.edit_message_text(f"Category: {cat}\n\n\U0001F4B0 Send the price in VC:")
 
 # ============================================================
 # AUTO-COMPLETE JOB (runs periodically)
@@ -3477,8 +3478,8 @@ async def auto_complete_job(context: ContextTypes.DEFAULT_TYPE):
                 conn.execute("UPDATE escrow SET status='released', released_at=CURRENT_TIMESTAMP WHERE id=?", (escrow['id'],))
                 conn.execute("UPDATE users SET completed_gigs=completed_gigs+1 WHERE user_id=?", (g['claimed_by'],))
                 try:
-                    await context.bot.send_message(g['poster_id'], f"⏰ Gig <b>{g['title']}</b> auto-completed.", parse_mode=ParseMode.HTML)
-                    await context.bot.send_message(g['claimed_by'], f"⏰ Gig <b>{g['title']}</b> auto-completed. Payment released!", parse_mode=ParseMode.HTML)
+                    await context.bot.send_message(g['poster_id'], f"\u23F0 Gig <b>{g['title']}</b> auto-completed.", parse_mode=ParseMode.HTML)
+                    await context.bot.send_message(g['claimed_by'], f"\u23F0 Gig <b>{g['title']}</b> auto-completed. Payment released!", parse_mode=ParseMode.HTML)
                 except: pass
         # Check overdue assigned gigs
         overdue_assigned = conn.execute(
@@ -3486,8 +3487,8 @@ async def auto_complete_job(context: ContextTypes.DEFAULT_TYPE):
         for g in overdue_assigned:
             conn.execute("UPDATE gigs SET status='overdue' WHERE id=? AND status='assigned'", (g['id'],))
             try:
-                await context.bot.send_message(g['poster_id'], f"⏰ Gig <b>{g['title']}</b> is overdue!", parse_mode=ParseMode.HTML)
-                await context.bot.send_message(g['claimed_by'], f"⏰ Gig <b>{g['title']}</b> is overdue! Please deliver ASAP.", parse_mode=ParseMode.HTML)
+                await context.bot.send_message(g['poster_id'], f"\u23F0 Gig <b>{g['title']}</b> is overdue!", parse_mode=ParseMode.HTML)
+                await context.bot.send_message(g['claimed_by'], f"\u23F0 Gig <b>{g['title']}</b> is overdue! Please deliver ASAP.", parse_mode=ParseMode.HTML)
             except: pass
         conn.commit(); conn.close()
     except Exception as e:
@@ -3667,12 +3668,12 @@ def main():
         app.job_queue.run_repeating(auto_complete_job, interval=3600, first=60)
 
 
-    # Error handler — silently ignores transient/expected errors
+    # Error handler \u2014 silently ignores transient/expected errors
     async def error_handler(update, context):
         from telegram.error import BadRequest, RetryAfter, TimedOut, NetworkError
         err = context.error
         err_str = str(err).lower()
-        # Silently ignore known expected errors — NEVER expose raw errors to users
+        # Silently ignore known expected errors \u2014 NEVER expose raw errors to users
         silent_keywords = [
             "query is too old",
             "response timeout expired",
@@ -3697,14 +3698,14 @@ def main():
             try:
                 await context.bot.send_message(
                     chat_id=update.effective_chat.id,
-                    text="⚠️ Something went wrong. Please try again or tap /start to restart."
+                    text="\u26A0\uFE0F Something went wrong. Please try again or tap /start to restart."
                 )
             except Exception:
                 pass
     
     app.add_error_handler(error_handler)
 
-    # ── Health-check server (always active — keeps Render/UptimeRobot happy) ─────
+    # \u2500\u2500 Health-check server (always active \u2014 keeps Render/UptimeRobot happy) \u2500\u2500\u2500\u2500\u2500
     import threading as _thr
     from http.server import HTTPServer as _HTTPSrv, BaseHTTPRequestHandler as _HTTPBase
     class _HealthHandler(_HTTPBase):
@@ -3720,9 +3721,9 @@ def main():
         target=_HTTPSrv(("0.0.0.0", PORT), _HealthHandler).serve_forever,
         daemon=True
     ).start()
-    logger.info(f"Health server listening on port {PORT} — /health is live")
+    logger.info(f"Health server listening on port {PORT} \u2014 /health is live")
 
-    # ── Polling mode (health server already owns PORT; polling needs no port) ───
+    # \u2500\u2500 Polling mode (health server already owns PORT; polling needs no port) \u2500\u2500\u2500
     logger.info("Bot starting polling mode (no webhook port conflict)...")
     app.run_polling(drop_pending_updates=True)
 if __name__ == "__main__":
