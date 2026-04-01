@@ -3722,6 +3722,21 @@ def main():
     ).start()
     logger.info(f"Health server listening on port {PORT} — /health is live")
 
+
+    # ── Self-ping keep-alive (prevents Render free-tier sleep) ─────
+    import urllib.request as _urlreq
+    def _self_ping():
+        import time as _time
+        _url = f"https://the-vault-bot.onrender.com/health"
+        while True:
+            _time.sleep(300)  # every 5 minutes
+            try:
+                _urlreq.urlopen(_url, timeout=10)
+            except Exception:
+                pass
+    _thr.Thread(target=_self_ping, daemon=True).start()
+    logger.info("Self-ping keep-alive thread started (every 5 min)")
+
     # ── Polling mode (health server already owns PORT; polling needs no port) ───
     logger.info("Bot starting polling mode (no webhook port conflict)...")
     app.run_polling(drop_pending_updates=True)
