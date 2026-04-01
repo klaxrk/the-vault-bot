@@ -3744,8 +3744,31 @@ def main():
     _thr.Thread(target=_self_ping, daemon=True).start()
     logger.info("Self-ping keep-alive thread started (every 5 min)")
 
-    # ── Polling mode (health server already owns PORT; polling needs no port) ───
+    # ── Polling mode with auto-restart on failure ───
     logger.info("Bot starting polling mode (no webhook port conflict)...")
+    import signal
+    def _restart_on_crash():
+        """Restart the entire process if polling dies but health server is still up."""
+        import time as _time
+        _time.sleep(30)  # Give polling time to start
+        while True:
+            _time.sleep(60)
+            try:
+                import urllib.request
+                # Check if we can reach Telegram API (polling health check)
+                req = urllib.request.Request(f"https://api.telegram.org/bot{BOT_TOKEN}/getWebhookInfo")
+                resp = urllib.request.urlopen(req, timeout=10)
+                import json as _json
+                data = _json.loads(resp.read())
+                pending = data.get("result", {}).get("pending_update_count", 0)
+                if pending > 20:
+                    logger.error(f"Polling seems stuck! {pending} pending updates. Restarting...")
+                    import os as _os
+                    _os._exit(1)  # Force restart - Render will restart the container
+            except Exception:
+                pass
+    _thr.Thread(target=_restart_on_crash, daemon=True).start()
+    logger.info("Polling watchdog started (checks every 60s)")
     app.run_polling(drop_pending_updates=True)
 if __name__ == "__main__":
     main()
